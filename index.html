@@ -103,20 +103,27 @@
             opacity: 0.95;
             transform: translateY(-1px);
         }
+
+        /* Mobile Responsive Adjustments */
+        @media (max-width: 640px) {
+            .glass-card {
+                padding: 1rem !important;
+            }
+        }
     </style>
 </head>
 <body class="bg-darknavy-800 text-slate-100 font-sans antialiased min-h-screen flex flex-col selection:bg-blue-500 selection:text-white">
 
     <!-- Toast Notification Container -->
-    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none max-w-[calc(100vw-2.5rem)]"></div>
 
     <!-- Main Layout Container -->
-    <div class="flex h-screen overflow-hidden">
+    <div class="flex h-screen overflow-hidden relative">
 
         <!-- SIDEBAR NAVIGATION -->
-        <aside id="sidebar" class="w-72 bg-darknavy-900 border-r border-darknavy-600/40 flex flex-col transition-all duration-300 z-30 lg:translate-x-0 -translate-x-full fixed lg:static inset-y-0 left-0">
+        <aside id="sidebar" class="w-72 bg-darknavy-900 border-r border-darknavy-600/40 flex flex-col transition-all duration-300 z-40 lg:translate-x-0 -translate-x-full fixed lg:static inset-y-0 left-0 shadow-2xl lg:shadow-none">
             <!-- App Logo / Brand -->
-            <div class="p-6 flex items-center justify-between border-b border-darknavy-600/30">
+            <div class="p-4 sm:p-6 flex items-center justify-between border-b border-darknavy-600/30">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/30 text-white font-extrabold text-xl">
                         A
@@ -126,13 +133,13 @@
                         <p class="text-xs text-slate-400 font-medium">Learning & Finance</p>
                     </div>
                 </div>
-                <button onclick="toggleMobileSidebar()" class="lg:hidden text-slate-400 hover:text-white">
-                    <i data-lucide="x" class="w-5 h-5"></i>
+                <button onclick="toggleMobileSidebar()" class="lg:hidden p-2 text-slate-400 hover:text-white rounded-lg hover:bg-darknavy-700/50">
+                    <i data-lucide="x" class="w-6 h-6"></i>
                 </button>
             </div>
 
             <!-- Navigation Links -->
-            <div class="flex-1 overflow-y-auto px-4 py-4 space-y-1">
+            <div class="flex-1 overflow-y-auto px-3 sm:px-4 py-4 space-y-1">
                 <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mb-2">Menu Utama</div>
                 
                 <button onclick="switchTab('dashboard')" data-tab="dashboard" class="nav-btn w-full flex items-center gap-3 px-3 py-3 rounded-xl font-medium text-sm transition-all text-slate-300 hover:bg-darknavy-700/50 hover:text-white">
@@ -257,42 +264,41 @@
             <!-- Admin Profile Foot -->
             <div class="p-4 border-t border-darknavy-600/30 bg-darknavy-900/50 flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 flex items-center font-bold text-white justify-center text-sm">
+                    <div class="w-9 h-9 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 flex items-center font-bold text-white justify-center text-sm shrink-0">
                         AX
                     </div>
-                    <div>
-                        <div class="text-sm font-bold text-white">Admin Axiom</div>
+                    <div class="truncate">
+                        <div class="text-sm font-bold text-white truncate">Admin Axiom</div>
                         <div class="text-xs text-emerald-400 flex items-center gap-1">
                             <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block animate-pulse"></span> Online
                         </div>
                     </div>
                 </div>
-                <button onclick="showToast('Sesi aktif, Admin Axiom', 'info')" class="text-slate-400 hover:text-white">
+                <button onclick="showToast('Sesi aktif, Admin Axiom', 'info')" class="text-slate-400 hover:text-white p-1">
                     <i data-lucide="log-out" class="w-4 h-4"></i>
                 </button>
             </div>
         </aside>
 
         <!-- MAIN CONTENT AREA -->
-        <main class="flex-1 flex flex-col h-screen overflow-hidden bg-darknavy-800">
+        <main class="flex-1 flex flex-col h-screen overflow-hidden bg-darknavy-800 w-full">
             <!-- TOP HEADER -->
-            <header class="h-16 bg-darknavy-900/80 border-b border-darknavy-600/40 px-6 flex items-center justify-between z-20">
-                <div class="flex items-center gap-4">
-                    <button onclick="toggleMobileSidebar()" class="lg:hidden text-slate-300 hover:text-white">
+            <header class="h-16 bg-darknavy-900/80 border-b border-darknavy-600/40 px-3 sm:px-6 flex items-center justify-between z-20 gap-2">
+                <div class="flex items-center gap-2 sm:gap-4 shrink-0">
+                    <button onclick="toggleMobileSidebar()" class="lg:hidden p-2 text-slate-300 hover:text-white rounded-lg hover:bg-darknavy-700/50">
                         <i data-lucide="menu" class="w-6 h-6"></i>
                     </button>
                     <div>
-                        <h2 id="page-title" class="text-lg font-bold text-white flex items-center gap-2">Dashboard Utama</h2>
-                        <p id="page-subtitle" class="text-xs text-slate-400">Ringkasan aktivitas dan keuangan bimbel secara real-time</p>
+                        <h2 id="page-title" class="text-sm sm:text-lg font-bold text-white flex items-center gap-2 truncate">Dashboard Utama</h2>
+                        <p id="page-subtitle" class="text-[10px] sm:text-xs text-slate-400 hidden sm:block">Ringkasan aktivitas dan keuangan bimbel secara real-time</p>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-3 sm:gap-4">
+                <div class="flex items-center gap-2 sm:gap-4">
                     <!-- Global Month & Year Filter Selection -->
-                    <div class="flex items-center gap-2 bg-darknavy-700/60 border border-darknavy-600/80 rounded-xl px-2.5 py-1">
-                        <i data-lucide="calendar" class="w-4 h-4 text-cyan-400"></i>
-                        <span class="text-[11px] font-semibold text-slate-300 hidden md:inline">Periode:</span>
-                        <select id="global-month-filter" onchange="handleMonthFilterChange(this.value)" class="bg-transparent text-xs font-bold text-cyan-300 outline-none cursor-pointer">
+                    <div class="flex items-center gap-1.5 sm:gap-2 bg-darknavy-700/60 border border-darknavy-600/80 rounded-xl px-2 sm:px-2.5 py-1">
+                        <i data-lucide="calendar" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400 shrink-0"></i>
+                        <select id="global-month-filter" onchange="handleMonthFilterChange(this.value)" class="bg-transparent text-[11px] sm:text-xs font-bold text-cyan-300 outline-none cursor-pointer">
                             <option value="all" class="bg-darknavy-900 text-white">Semua Bulan</option>
                             <option value="0" class="bg-darknavy-900 text-white">Januari</option>
                             <option value="1" class="bg-darknavy-900 text-white">Februari</option>
@@ -307,28 +313,28 @@
                             <option value="10" class="bg-darknavy-900 text-white">November</option>
                             <option value="11" class="bg-darknavy-900 text-white">Desember</option>
                         </select>
-                        <select id="global-year-filter" onchange="handleYearFilterChange(this.value)" class="bg-transparent text-xs font-bold text-cyan-300 outline-none cursor-pointer">
+                        <select id="global-year-filter" onchange="handleYearFilterChange(this.value)" class="bg-transparent text-[11px] sm:text-xs font-bold text-cyan-300 outline-none cursor-pointer">
                             <option value="2025" class="bg-darknavy-900 text-white">2025</option>
                             <option value="2026" class="bg-darknavy-900 text-white" selected>2026</option>
                             <option value="2027" class="bg-darknavy-900 text-white">2027</option>
                         </select>
                     </div>
 
-                    <div class="relative hidden sm:block">
+                    <div class="relative hidden md:block">
                         <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                             <i data-lucide="search" class="w-4 h-4"></i>
                         </span>
-                        <input type="text" id="global-search-input" onkeyup="handleGlobalSearch(event)" placeholder="Cari data siswa, jadwal, absensi..." class="bg-darknavy-700/50 border border-darknavy-600/60 rounded-xl pl-9 pr-4 py-1.5 text-xs text-slate-200 placeholder-slate-400 focus:outline-none focus:border-blue-500 w-48 lg:w-64 transition-all">
+                        <input type="text" id="global-search-input" onkeyup="handleGlobalSearch(event)" placeholder="Cari data..." class="bg-darknavy-700/50 border border-darknavy-600/60 rounded-xl pl-9 pr-4 py-1.5 text-xs text-slate-200 placeholder-slate-400 focus:outline-none focus:border-blue-500 w-36 lg:w-64 transition-all">
                     </div>
 
                     <!-- Notifications Dropdown Trigger -->
                     <div class="relative">
                         <button onclick="toggleNotifications()" class="relative p-2 rounded-xl bg-darknavy-700/50 border border-darknavy-600/60 text-slate-300 hover:text-white transition-all">
-                            <i data-lucide="bell" class="w-5 h-5"></i>
+                            <i data-lucide="bell" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                             <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
                             <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500"></span>
                         </button>
-                        <div id="notification-dropdown" class="absolute right-0 mt-2 w-80 bg-darknavy-900 border border-darknavy-600 rounded-2xl shadow-2xl p-4 hidden z-50">
+                        <div id="notification-dropdown" class="absolute right-0 mt-2 w-72 sm:w-80 bg-darknavy-900 border border-darknavy-600 rounded-2xl shadow-2xl p-4 hidden z-50">
                             <div class="flex items-center justify-between pb-3 border-b border-darknavy-600/50">
                                 <h3 class="font-bold text-sm text-white">Notifikasi Terbaru</h3>
                                 <span class="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full font-semibold">3 Baru</span>
@@ -358,7 +364,7 @@
                         </div>
                     </div>
 
-                    <div class="h-8 w-[1px] bg-darknavy-600/60"></div>
+                    <div class="h-8 w-[1px] bg-darknavy-600/60 hidden sm:block"></div>
                     <div class="flex items-center gap-3">
                         <div class="text-right hidden sm:block">
                             <div class="text-xs font-bold text-white">Axiom Learning</div>
@@ -369,15 +375,15 @@
             </header>
 
             <!-- VIEW CONTAINER -->
-            <div id="main-content" class="flex-1 overflow-y-auto p-6 lg:p-8 space-y-6">
+            <div id="main-content" class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
                 <!-- Content injected dynamically via JS -->
             </div>
         </main>
     </div>
 
     <!-- GLOBAL MODAL CONTAINER -->
-    <div id="modal-container" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div id="modal-content" class="bg-darknavy-900 border border-darknavy-600 rounded-2xl w-full max-w-xl overflow-hidden shadow-2xl transform transition-all">
+    <div id="modal-container" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden overflow-y-auto">
+        <div id="modal-content" class="bg-darknavy-900 border border-darknavy-600 rounded-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto shadow-2xl transform transition-all my-auto">
             <!-- Modal injected dynamically -->
         </div>
     </div>
