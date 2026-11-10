@@ -1,0 +1,2216 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Axiom Learning — Learning & Finance Management</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darknavy: {
+                            900: '#030712',
+                            800: '#0B132B',
+                            700: '#1C2541',
+                            600: '#3A506B',
+                        },
+                        accent: {
+                            blue: '#3B82F6',
+                            cyan: '#06B6D4',
+                            emerald: '#10B981',
+                            amber: '#F59E0B',
+                            rose: '#EF4444',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0B132B; }
+        ::-webkit-scrollbar-thumb { background: #3A506B; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3B82F6; }
+        .glass-card {
+            background: rgba(28, 37, 65, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(58, 80, 107, 0.3);
+        }
+
+        /* Form input styles */
+        .form-label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #cbd5e1;
+            margin-bottom: 0.375rem;
+            letter-spacing: 0.025em;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            background-color: rgba(11, 19, 43, 0.7);
+            border: 1px solid rgba(58, 80, 107, 0.6);
+            border-radius: 0.75rem;
+            padding: 0.625rem 0.875rem;
+            color: #f8fafc;
+            font-size: 0.8125rem;
+            transition: all 0.2s ease-in-out;
+            outline: none;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+            background-color: rgba(28, 37, 65, 0.9);
+        }
+
+        .form-input::placeholder, .form-textarea::placeholder {
+            color: #64748b;
+        }
+
+        .form-select option {
+            background-color: #0b132b;
+            color: #f8fafc;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.8125rem;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.75rem;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-submit:hover {
+            opacity: 0.95;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body class="bg-darknavy-800 text-slate-100 font-sans antialiased min-h-screen flex flex-col selection:bg-blue-500 selection:text-white">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Main Layout Container -->
+    <div class="flex h-screen overflow-hidden">
+
+        <!-- SIDEBAR NAVIGATION -->
+        <aside id="sidebar" class="w-72 bg-darknavy-900 border-r border-darknavy-600/40 flex flex-col transition-all duration-300 z-30 lg:translate-x-0 -translate-x-full fixed lg:static inset-y-0 left-0">
+            <!-- App Logo / Brand -->
+            <div class="p-6 flex items-center justify-between border-b border-darknavy-600/30">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/30 text-white font-extrabold text-xl">
+                        A
+                    </div>
+                    <div>
+                        <h1 class="font-extrabold text-lg tracking-wide bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">AXIOM</h1>
+                        <p class="text-xs text-slate-400 font-medium">Learning & Finance</p>
+                    </div>
+                </div>
+                <button onclick="toggleMobileSidebar()" class="lg:hidden text-slate-400 hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Navigation Links -->
+            <div class="flex-1 overflow-y-auto px-4 py-4 space-y-1">
+                <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mb-2">Menu Utama</div>
+                
+                <button onclick="switchTab('dashboard')" data-tab="dashboard" class="nav-btn w-full flex items-center gap-3 px-3 py-3 rounded-xl font-medium text-sm transition-all text-slate-300 hover:bg-darknavy-700/50 hover:text-white">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5 text-blue-400"></i>
+                    <span>Dashboard</span>
+                </button>
+
+                <!-- Jadwal Les Menu with Submenu -->
+                <div>
+                    <button onclick="toggleSubmenu('jadwal-submenu', 'jadwal-chevron')" class="w-full flex items-center justify-between px-3 py-3 rounded-xl font-medium text-sm transition-all text-slate-300 hover:bg-darknavy-700/50 hover:text-white">
+                        <div class="flex items-center gap-3">
+                            <i data-lucide="calendar" class="w-5 h-5 text-cyan-400"></i>
+                            <span>Jadwal Les</span>
+                        </div>
+                        <i id="jadwal-chevron" data-lucide="chevron-down" class="w-4 h-4 transition-transform"></i>
+                    </button>
+                    <div id="jadwal-submenu" class="pl-9 pr-2 py-1 space-y-1 hidden">
+                        <button onclick="switchTab('jadwal', 'semua')" class="sub-nav-btn w-full text-left px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-darknavy-700/30">Semua Jadwal</button>
+                        <button onclick="switchTab('jadwal', 'privat')" class="sub-nav-btn w-full text-left px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-darknavy-700/30">Les Privat</button>
+                        <button onclick="switchTab('jadwal', 'reguler')" class="sub-nav-btn w-full text-left px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-darknavy-700/30">Bimbel Reguler</button>
+                        <button onclick="switchTab('jadwal', 'online')" class="sub-nav-btn w-full text-left px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-darknavy-700/30">Les Online</button>
+                        <button onclick="switchTab('jadwal', 'hari-ini')" class="sub-nav-btn w-full text-left px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-darknavy-700/30">Jadwal Hari Ini</button>
+                    </div>
+                </div>
+
+                <!-- Absensi Siswa Menu with Submenu -->
+                <div>
+                    <button onclick="toggleSubmenu('absensi-submenu', 'absensi-chevron')" class="w-full flex items-center justify-between px-3 py-3 rounded-xl font-medium text-sm transition-all text-slate-300 hover:bg-darknavy-700/50 hover:text-white">
+                        <div class="flex items-center gap-3">
+                            <i data-lucide="user-check" class="w-5 h-5 text-emerald-400"></i>
+                            <span>Absensi Siswa</span>
+                        </div>
+                        <i id="absensi-chevron" data-lucide="chevron-down" class="w-4 h-4 transition-transform"></i>
+                    </button>
+                    <div id="absensi-submenu" class="pl-9 pr-2 py-1 space-y-1 hidden">
+                        <button onclick="switchTab('absensi', 'semua')" class="sub-nav-btn w-full text-left px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-darknavy-700/30">Semua Absensi</button>
+                        <button onclick="switchTab('absensi', 'privat')" class="sub-nav-btn w-full text-left px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-darknavy-700/30">Absensi Privat</button>
+                        <button onclick="switchTab('absensi', 'bimbel')" class="sub-nav-btn w-full text-left px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-darknavy-700/30">Absensi Bimbel</button>
+                        <button onclick="switchTab('absensi', 'online')" class="sub-nav-btn w-full text-left px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-darknavy-700/30">Absensi Online</button>
+                    </div>
+                </div>
+
+                <!-- Data Siswa Menu with Submenu -->
+                <div>
+                    <button onclick="toggleSubmenu('siswa-submenu', 'siswa-chevron')" class="w-full flex items-center justify-between px-3 py-3 rounded-xl font-medium text-sm transition-all text-slate-300 hover:bg-darknavy-700/50 hover:text-white">
+                        <div class="flex items-center gap-3">
+                            <i data-lucide="users" class="w-5 h-5 text-amber-400"></i>
+                            <span>Data Siswa</span>
+                        </div>
+                        <i id="siswa-chevron" data-lucide="chevron-down" class="w-4 h-4 transition-transform"></i>
+                    </button>
+                    <div id="siswa-submenu" class="pl-9 pr-2 py-1 space-y-1 hidden">
+                        <button onclick="switchTab('siswa', 'semua')" class="sub-nav-btn w-full text-left px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-darknavy-700/30">Semua Siswa</button>
+                        <button onclick="switchTab('siswa', 'privat')" class="sub-nav-btn w-full text-left px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-darknavy-700/30">Siswa Privat</button>
+                        <button onclick="switchTab('siswa', 'bimbel')" class="sub-nav-btn w-full text-left px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-darknavy-700/30">Siswa Bimbel</button>
+                        <button onclick="switchTab('siswa', 'online')" class="sub-nav-btn w-full text-left px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-darknavy-700/30">Siswa Online</button>
+                        <button onclick="switchTab('siswa', 'tidak-aktif')" class="sub-nav-btn w-full text-left px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-darknavy-700/30">Siswa Tidak Aktif</button>
+                    </div>
+                </div>
+
+                <!-- Data Pengajar Menu with Submenu -->
+                <div>
+                    <button onclick="toggleSubmenu('pengajar-submenu', 'pengajar-chevron')" class="w-full flex items-center justify-between px-3 py-3 rounded-xl font-medium text-sm transition-all text-slate-300 hover:bg-darknavy-700/50 hover:text-white">
+                        <div class="flex items-center gap-3">
+                            <i data-lucide="graduation-cap" class="w-5 h-5 text-purple-400"></i>
+                            <span>Data Pengajar</span>
+                        </div>
+                        <i id="pengajar-chevron" data-lucide="chevron-down" class="w-4 h-4 transition-transform"></i>
+                    </button>
+                    <div id="pengajar-submenu" class="pl-9 pr-2 py-1 space-y-1 hidden">
+                        <button onclick="switchTab('pengajar', 'semua')" class="sub-nav-btn w-full text-left px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-darknavy-700/30">Semua Pengajar</button>
+                        <button onclick="switchTab('pengajar', 'privat')" class="sub-nav-btn w-full text-left px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-darknavy-700/30">Pengajar Privat</button>
+                        <button onclick="switchTab('pengajar', 'bimbel')" class="sub-nav-btn w-full text-left px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-darknavy-700/30">Pengajar Bimbel</button>
+                    </div>
+                </div>
+
+                <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mt-6 mb-2">Keuangan & Administrasi</div>
+
+                <!-- Pendapatan Menu with Submenu -->
+                <div>
+                    <button onclick="toggleSubmenu('pendapatan-submenu', 'pendapatan-chevron')" class="w-full flex items-center justify-between px-3 py-3 rounded-xl font-medium text-sm transition-all text-slate-300 hover:bg-darknavy-700/50 hover:text-white">
+                        <div class="flex items-center gap-3">
+                            <i data-lucide="trending-up" class="w-5 h-5 text-emerald-400"></i>
+                            <span>Pendapatan</span>
+                        </div>
+                        <i id="pendapatan-chevron" data-lucide="chevron-down" class="w-4 h-4 transition-transform"></i>
+                    </button>
+                    <div id="pendapatan-submenu" class="pl-9 pr-2 py-1 space-y-1 hidden">
+                        <button onclick="switchTab('pendapatan', 'semua')" class="sub-nav-btn w-full text-left px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-darknavy-700/30">Semua Pendapatan</button>
+                        <button onclick="switchTab('pendapatan', 'pembayaran')" class="sub-nav-btn w-full text-left px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-darknavy-700/30">Pembayaran Siswa</button>
+                        <button onclick="switchTab('pendapatan', 'piutang')" class="sub-nav-btn w-full text-left px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-darknavy-700/30">Piutang Siswa</button>
+                    </div>
+                </div>
+
+                <!-- Pengeluaran Menu with Submenu -->
+                <div>
+                    <button onclick="toggleSubmenu('pengeluaran-submenu', 'pengeluaran-chevron')" class="w-full flex items-center justify-between px-3 py-3 rounded-xl font-medium text-sm transition-all text-slate-300 hover:bg-darknavy-700/50 hover:text-white">
+                        <div class="flex items-center gap-3">
+                            <i data-lucide="trending-down" class="w-5 h-5 text-rose-400"></i>
+                            <span>Pengeluaran</span>
+                        </div>
+                        <i id="pengeluaran-chevron" data-lucide="chevron-down" class="w-4 h-4 transition-transform"></i>
+                    </button>
+                    <div id="pengeluaran-submenu" class="pl-9 pr-2 py-1 space-y-1 hidden">
+                        <button onclick="switchTab('pengeluaran', 'semua')" class="sub-nav-btn w-full text-left px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-darknavy-700/30">Semua Pengeluaran</button>
+                        <button onclick="switchTab('pengeluaran', 'operasional')" class="sub-nav-btn w-full text-left px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-darknavy-700/30">Operasional</button>
+                        <button onclick="switchTab('pengeluaran', 'honor')" class="sub-nav-btn w-full text-left px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-darknavy-700/30">Honor Pengajar</button>
+                    </div>
+                </div>
+
+                <button onclick="switchTab('laporan')" data-tab="laporan" class="nav-btn w-full flex items-center gap-3 px-3 py-3 rounded-xl font-medium text-sm transition-all text-slate-300 hover:bg-darknavy-700/50 hover:text-white">
+                    <i data-lucide="file-text" class="w-5 h-5 text-indigo-400"></i>
+                    <span>Laporan Keuangan</span>
+                </button>
+
+                <button onclick="switchTab('pengaturan')" data-tab="pengaturan" class="nav-btn w-full flex items-center gap-3 px-3 py-3 rounded-xl font-medium text-sm transition-all text-slate-300 hover:bg-darknavy-700/50 hover:text-white">
+                    <i data-lucide="settings" class="w-5 h-5 text-slate-400"></i>
+                    <span>Pengaturan</span>
+                </button>
+            </div>
+
+            <!-- Admin Profile Foot -->
+            <div class="p-4 border-t border-darknavy-600/30 bg-darknavy-900/50 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 flex items-center font-bold text-white justify-center text-sm">
+                        AX
+                    </div>
+                    <div>
+                        <div class="text-sm font-bold text-white">Admin Axiom</div>
+                        <div class="text-xs text-emerald-400 flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block animate-pulse"></span> Online
+                        </div>
+                    </div>
+                </div>
+                <button onclick="showToast('Sesi aktif, Admin Axiom', 'info')" class="text-slate-400 hover:text-white">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="flex-1 flex flex-col h-screen overflow-hidden bg-darknavy-800">
+            <!-- TOP HEADER -->
+            <header class="h-16 bg-darknavy-900/80 border-b border-darknavy-600/40 px-6 flex items-center justify-between z-20">
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleMobileSidebar()" class="lg:hidden text-slate-300 hover:text-white">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                    <div>
+                        <h2 id="page-title" class="text-lg font-bold text-white flex items-center gap-2">Dashboard Utama</h2>
+                        <p id="page-subtitle" class="text-xs text-slate-400">Ringkasan aktivitas dan keuangan bimbel secara real-time</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3 sm:gap-4">
+                    <!-- Global Month & Year Filter Selection -->
+                    <div class="flex items-center gap-2 bg-darknavy-700/60 border border-darknavy-600/80 rounded-xl px-2.5 py-1">
+                        <i data-lucide="calendar" class="w-4 h-4 text-cyan-400"></i>
+                        <span class="text-[11px] font-semibold text-slate-300 hidden md:inline">Periode:</span>
+                        <select id="global-month-filter" onchange="handleMonthFilterChange(this.value)" class="bg-transparent text-xs font-bold text-cyan-300 outline-none cursor-pointer">
+                            <option value="all" class="bg-darknavy-900 text-white">Semua Bulan</option>
+                            <option value="0" class="bg-darknavy-900 text-white">Januari</option>
+                            <option value="1" class="bg-darknavy-900 text-white">Februari</option>
+                            <option value="2" class="bg-darknavy-900 text-white" selected>Maret</option>
+                            <option value="3" class="bg-darknavy-900 text-white">April</option>
+                            <option value="4" class="bg-darknavy-900 text-white">Mei</option>
+                            <option value="5" class="bg-darknavy-900 text-white">Juni</option>
+                            <option value="6" class="bg-darknavy-900 text-white">Juli</option>
+                            <option value="7" class="bg-darknavy-900 text-white">Agustus</option>
+                            <option value="8" class="bg-darknavy-900 text-white">September</option>
+                            <option value="9" class="bg-darknavy-900 text-white">Oktober</option>
+                            <option value="10" class="bg-darknavy-900 text-white">November</option>
+                            <option value="11" class="bg-darknavy-900 text-white">Desember</option>
+                        </select>
+                        <select id="global-year-filter" onchange="handleYearFilterChange(this.value)" class="bg-transparent text-xs font-bold text-cyan-300 outline-none cursor-pointer">
+                            <option value="2025" class="bg-darknavy-900 text-white">2025</option>
+                            <option value="2026" class="bg-darknavy-900 text-white" selected>2026</option>
+                            <option value="2027" class="bg-darknavy-900 text-white">2027</option>
+                        </select>
+                    </div>
+
+                    <div class="relative hidden sm:block">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                            <i data-lucide="search" class="w-4 h-4"></i>
+                        </span>
+                        <input type="text" id="global-search-input" onkeyup="handleGlobalSearch(event)" placeholder="Cari data siswa, jadwal, absensi..." class="bg-darknavy-700/50 border border-darknavy-600/60 rounded-xl pl-9 pr-4 py-1.5 text-xs text-slate-200 placeholder-slate-400 focus:outline-none focus:border-blue-500 w-48 lg:w-64 transition-all">
+                    </div>
+
+                    <!-- Notifications Dropdown Trigger -->
+                    <div class="relative">
+                        <button onclick="toggleNotifications()" class="relative p-2 rounded-xl bg-darknavy-700/50 border border-darknavy-600/60 text-slate-300 hover:text-white transition-all">
+                            <i data-lucide="bell" class="w-5 h-5"></i>
+                            <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+                            <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500"></span>
+                        </button>
+                        <div id="notification-dropdown" class="absolute right-0 mt-2 w-80 bg-darknavy-900 border border-darknavy-600 rounded-2xl shadow-2xl p-4 hidden z-50">
+                            <div class="flex items-center justify-between pb-3 border-b border-darknavy-600/50">
+                                <h3 class="font-bold text-sm text-white">Notifikasi Terbaru</h3>
+                                <span class="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full font-semibold">3 Baru</span>
+                            </div>
+                            <div class="py-3 space-y-3 max-h-64 overflow-y-auto">
+                                <div class="flex items-start gap-3 p-2 rounded-xl bg-darknavy-700/40 hover:bg-darknavy-700/80 transition">
+                                    <div class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0">
+                                        <i data-lucide="calendar" class="w-4 h-4"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-semibold text-slate-200">Jadwal Les Matematika</p>
+                                        <p class="text-[11px] text-slate-400">Dimulai hari ini pukul 15:30 WIB oleh Kak Budi.</p>
+                                        <span class="text-[10px] text-blue-400 mt-1 block">10 menit yang lalu</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-3 p-2 rounded-xl bg-darknavy-700/40 hover:bg-darknavy-700/80 transition">
+                                    <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                                        <i data-lucide="dollar-sign" class="w-4 h-4"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-semibold text-slate-200">Pembayaran Diterima</p>
+                                        <p class="text-[11px] text-slate-400">Andi Pratama melunasi SPB Bulanan Axiom.</p>
+                                        <span class="text-[10px] text-emerald-400 mt-1 block">1 jam yang lalu</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="h-8 w-[1px] bg-darknavy-600/60"></div>
+                    <div class="flex items-center gap-3">
+                        <div class="text-right hidden sm:block">
+                            <div class="text-xs font-bold text-white">Axiom Learning</div>
+                            <div class="text-[10px] text-slate-400 font-medium">Pusat Administrasi</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- VIEW CONTAINER -->
+            <div id="main-content" class="flex-1 overflow-y-auto p-6 lg:p-8 space-y-6">
+                <!-- Content injected dynamically via JS -->
+            </div>
+        </main>
+    </div>
+
+    <!-- GLOBAL MODAL CONTAINER -->
+    <div id="modal-container" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div id="modal-content" class="bg-darknavy-900 border border-darknavy-600 rounded-2xl w-full max-w-xl overflow-hidden shadow-2xl transform transition-all">
+            <!-- Modal injected dynamically -->
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC & DATABASE ENGINE -->
+    <script>
+        let currentTab = 'dashboard';
+        let currentSubTab = 'semua';
+        let searchQuery = '';
+        let selectedMonth = '2'; // Default Maret (index 2)
+        let selectedYear = '2026'; // Default 2026
+
+        // Helper untuk memfilter array data berdasarkan tanggal bulan & tahun yang dipilih
+        function filterByMonthAndYear(dataArray, dateFieldName = 'tanggal') {
+            if (selectedMonth === 'all') {
+                return dataArray.filter(item => {
+                    if (!item[dateFieldName]) return true;
+                    const d = new Date(item[dateFieldName]);
+                    return d.getFullYear().toString() === selectedYear;
+                });
+            }
+            return dataArray.filter(item => {
+                if (!item[dateFieldName]) return false;
+                const d = new Date(item[dateFieldName]);
+                return d.getMonth().toString() === selectedMonth && d.getFullYear().toString() === selectedYear;
+            });
+        }
+
+        function handleMonthFilterChange(val) {
+            selectedMonth = val;
+            const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            const monthText = val === 'all' ? 'Semua Bulan' : monthNames[parseInt(val)];
+            showToast(`Filter periode diubah: ${monthText} ${selectedYear}`, 'info');
+            switchTab(currentTab, currentSubTab);
+        }
+
+        function handleYearFilterChange(val) {
+            selectedYear = val;
+            showToast(`Tahun periode diubah ke ${selectedYear}`, 'info');
+            switchTab(currentTab, currentSubTab);
+        }
+
+        // Helper untuk mendapatkan tanggal hari ini format YYYY-MM-DD
+        function getTodayDateString() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // Daftar Pilihan Kelas Sesuai Jenjang
+        const classOptions = {
+            'SD': ['Kelas 1', 'Kelas 2', 'Kelas 3', 'Kelas 4', 'Kelas 5', 'Kelas 6'],
+            'SMP': ['Kelas 7', 'Kelas 8', 'Kelas 9'],
+            'SMA': ['Kelas 10', 'Kelas 11', 'Kelas 12', 'Alumni / GAP Year']
+        };
+
+        // Default In-Memory Database Schema for Axiom Learning Center
+        const defaultDb = {
+            siswa: [
+                { id: 'S001', nama: 'Andi Pratama', kelas: 'Kelas 12', jenjang: 'SMA', program: 'Bimbel', mapel: 'Matematika & Fisika', orangTua: 'Bapak Joko', whatsapp: '081234567890', alamat: 'Jl. Merdeka No. 12, Jakarta', bergabung: '2026-01-10', status: 'Aktif', keterangan: 'Prestasi sangat baik' },
+                { id: 'S002', nama: 'Siti Rahmawati', kelas: 'Kelas 9', jenjang: 'SMP', program: 'Privat', mapel: 'Bahasa Inggris', orangTua: 'Ibu Aminah', whatsapp: '081398765432', alamat: 'Jl. Kenanga No. 5, Bandung', bergabung: '2026-02-01', status: 'Aktif', keterangan: 'Fokus persiapan ujian' },
+                { id: 'S003', nama: 'Rizky Ramadhan', kelas: 'Kelas 11', jenjang: 'SMA', program: 'Online', mapel: 'Kimia', orangTua: 'Bapak Herman', whatsapp: '081876543210', alamat: 'Jl. Sudirman No. 88, Surabaya', bergabung: '2026-01-15', status: 'Aktif', keterangan: 'Les via Zoom' },
+                { id: 'S004', nama: 'Dewi Lestari', kelas: 'Kelas 6', jenjang: 'SD', program: 'Bimbel', mapel: 'Matematika & IPA', orangTua: 'Bapak Hendra', whatsapp: '081567890123', alamat: 'Jl. Melati No. 3', bergabung: '2025-11-20', status: 'Tidak Aktif', keterangan: 'Cuti sementara' },
+            ],
+            pengajar: [
+                { id: 'T001', nama: 'Kak Budi, S.Pd.', mapel: 'Matematika', whatsapp: '081211223344', program: 'Bimbel & Privat', jadwal: 'Senin, Rabu, Jumat', sesi: 24, status: 'Aktif' },
+                { id: 'T002', nama: 'Kak Siska, M.Sc.', mapel: 'Fisika & Kimia', whatsapp: '081344556677', program: 'Online & Privat', jadwal: 'Selasa, Kamis', sesi: 18, status: 'Aktif' },
+                { id: 'T003', nama: 'Kak Rian, S.Hum.', mapel: 'Bahasa Inggris', whatsapp: '081577889900', program: 'Bimbel', jadwal: 'Rabu, Sabtu', sesi: 20, status: 'Aktif' },
+            ],
+            jadwal: [
+                { id: 'J001', siswa: 'Andi Pratama', kelas: 'Kelas 12', program: 'Bimbel', mapel: 'Matematika', materi: 'Integral Tentu dan Tak Tentu', hari: 'Senin', tanggal: getTodayDateString(), waktuMulai: '15:30', waktuSelesai: '17:00', pengajar: 'Kak Budi, S.Pd.', fee: 150000, keterangan: 'Ruang Kelas A', status: 'Terjadwal' },
+                { id: 'J002', siswa: 'Siti Rahmawati', kelas: 'Kelas 9', program: 'Privat', mapel: 'Bahasa Inggris', materi: 'Narrative Text Analysis', hari: 'Selasa', tanggal: getTodayDateString(), waktuMulai: '16:00', waktuSelesai: '17:30', pengajar: 'Kak Rian, S.Hum.', fee: 200000, keterangan: 'Rumah Siswa', status: 'Terjadwal' },
+                { id: 'J003', siswa: 'Rizky Ramadhan', kelas: 'Kelas 11', program: 'Online', mapel: 'Kimia', materi: 'Larutan Penyangga (Buffer)', hari: 'Rabu', tanggal: '2026-03-04', waktuMulai: '19:00', waktuSelesai: '20:30', pengajar: 'Kak Siska, M.Sc.', fee: 150000, keterangan: 'Zoom Meeting', status: 'Selesai' },
+            ],
+            absensi: [
+                { id: 'A001', siswa: 'Andi Pratama', kelas: 'Kelas 12', program: 'Bimbel', mapel: 'Matematika', materi: 'Limit Fungsi Aljabar', tanggal: '2026-03-01', waktu: '15:30', pengajar: 'Kak Budi, S.Pd.', status: 'Hadir', keterangan: 'Tepat waktu' },
+                { id: 'A002', siswa: 'Siti Rahmawati', kelas: 'Kelas 9', program: 'Privat', mapel: 'Bahasa Inggris', materi: 'Descriptive Text', tanggal: '2026-03-01', waktu: '16:00', pengajar: 'Kak Rian, S.Hum.', status: 'Izin', keterangan: 'Keperluan keluarga' },
+                { id: 'A003', siswa: 'Rizky Ramadhan', kelas: 'Kelas 11', program: 'Online', mapel: 'Kimia', materi: 'Termokimia', tanggal: '2026-03-01', waktu: '19:00', pengajar: 'Kak Siska, M.Sc.', status: 'Hadir', keterangan: 'Aktif bertanya' },
+            ],
+            pendapatan: [
+                { id: 'P001', tanggal: '2026-03-01', nama: 'Andi Pratama', program: 'Bimbel', jenis: 'SPB Bulanan', periode: 'Maret 2026', nominal: 750000, metode: 'Transfer', status: 'Lunas', keterangan: 'BCA Admin' },
+                { id: 'P002', tanggal: '2026-03-02', nama: 'Siti Rahmawati', program: 'Privat', jenis: 'Paket 8 Sesi', periode: 'Maret 2026', nominal: 1200000, metode: 'QRIS', status: 'Lunas', keterangan: 'Scan QRIS Axiom' },
+                { id: 'P003', tanggal: '2026-03-02', nama: 'Rizky Ramadhan', program: 'Online', jenis: 'SPB Bulanan', periode: 'Maret 2026', nominal: 600000, metode: 'Transfer', status: 'Belum Lunas', keterangan: 'Jatuh tempo tgl 10' },
+                { id: 'P004', tanggal: '2026-03-04', nama: 'Rizky Ramadhan', program: 'Online', jenis: 'Fee Les Kimia (Sesi J003)', periode: 'Maret 2026', nominal: 150000, metode: 'Otomatis', status: 'Lunas', keterangan: 'Rekap otomatis sesi selesai' },
+            ],
+            pengeluaran: [
+                { id: 'E001', tanggal: '2026-03-01', kategori: 'Honor Pengajar', penerima: 'Kak Budi, S.Pd.', deskripsi: 'Honor Mengajar Bulan Februari 2026', nominal: 2400000, metode: 'Transfer', status: 'Dibayar', keterangan: 'Selesai transfer' },
+                { id: 'E002', tanggal: '2026-03-02', kategori: 'Operasional', penerima: 'PLN & Wifi', deskripsi: 'Tagihan Listrik & Internet Bulanan', nominal: 450000, metode: 'Transfer', status: 'Dibayar', keterangan: 'Bulanan' },
+                { id: 'E003', tanggal: '2026-03-02', kategori: 'Perlengkapan', penerima: 'Toko Buku Serba Ada', deskripsi: 'Pembelian Spidol & Kertas HVS', nominal: 150000, metode: 'Tunai', status: 'Dibayar', keterangan: 'Stok kantor' },
+            ],
+            settings: {
+                namaBimbel: 'Axiom Learning Center',
+                tahunAjaran: '2025/2026',
+                telepon: '021-5558899',
+                email: 'admin@axiomlearning.edu',
+                alamat: 'Jl. Pendidikan Utama No. 45, Jakarta Selatan'
+            }
+        };
+
+        // Fallback global cache jika LocalStorage diblokir oleh iFrame sandbox
+        window.persistentAxiomState = window.persistentAxiomState || null;
+
+        // Load Database with Multi-Tier Storage Protection
+        function loadDatabase() {
+            try {
+                if (window.persistentAxiomState) {
+                    return window.persistentAxiomState;
+                }
+                const savedDb = window.localStorage ? localStorage.getItem('axiom_bimbel_db') : null;
+                const parsed = savedDb ? JSON.parse(savedDb) : defaultDb;
+                window.persistentAxiomState = parsed;
+                return parsed;
+            } catch (e) {
+                console.warn('LocalStorage tidak dapat diakses. Menggunakan Session State Fallback.', e);
+                if (!window.persistentAxiomState) {
+                    window.persistentAxiomState = defaultDb;
+                }
+                return window.persistentAxiomState;
+            }
+        }
+
+        // Save Database State
+        function saveDatabase() {
+            window.persistentAxiomState = db;
+            try {
+                if (window.localStorage) {
+                    localStorage.setItem('axiom_bimbel_db', JSON.stringify(db));
+                }
+            } catch (e) {
+                console.warn('Penyimpanan LocalStorage dibatasi browser.', e);
+            }
+        }
+
+        let db = loadDatabase();
+
+        // Initialize Lucide icons on load
+        window.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            switchTab('dashboard', 'semua');
+        });
+
+        function handleGlobalSearch(e) {
+            searchQuery = e.target.value.toLowerCase().trim();
+            switchTab(currentTab, currentSubTab);
+        }
+
+        // Toggle Sidebar for Mobile
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        }
+
+        // Toggle Submenus
+        function toggleSubmenu(submenuId, chevronId) {
+            const submenu = document.getElementById(submenuId);
+            const chevron = document.getElementById(chevronId);
+            submenu.classList.toggle('hidden');
+            chevron.classList.toggle('rotate-180');
+        }
+
+        // Toggle Notifications dropdown
+        function toggleNotifications() {
+            const dropdown = document.getElementById('notification-dropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        // Toast Notification System
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let bgClass = 'bg-emerald-600 text-white';
+            let icon = 'check-circle';
+            if (type === 'error') {
+                bgClass = 'bg-rose-600 text-white';
+                icon = 'alert-circle';
+            } else if (type === 'info') {
+                bgClass = 'bg-blue-600 text-white';
+                icon = 'info';
+            }
+
+            toast.className = `flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl ${bgClass} text-xs font-semibold transform transition-all duration-300 translate-y-2 opacity-0 pointer-events-auto`;
+            toast.innerHTML = `<i data-lucide="${icon}" class="w-4 h-4"></i> <span>${message}</span>`;
+            
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        // Switch Active Tab & Subtab
+        function switchTab(tab, subtab = 'semua') {
+            currentTab = tab;
+            currentSubTab = subtab;
+
+            // Highlight nav buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600/20', 'text-blue-400', 'font-bold', 'border-l-4', 'border-blue-500');
+                if (btn.getAttribute('data-tab') === tab) {
+                    btn.classList.add('bg-blue-600/20', 'text-blue-400', 'font-bold', 'border-l-4', 'border-blue-500');
+                }
+            });
+
+            // Update Header Title & Subtitle
+            const titles = {
+                'dashboard': ['Dashboard Utama Axiom', 'Ringkasan aktivitas dan keuangan bimbel secara real-time'],
+                'jadwal': ['Manajemen Jadwal Les', 'Atur, pantau, dan sinkronkan jadwal bimbingan belajar Axiom'],
+                'absensi': ['Absensi & Kehadiran Siswa', 'Monitor kehadiran siswa secara terintegrasi dengan jadwal'],
+                'siswa': ['Data Siswa Axiom', 'Kelola informasi profil, jenjang, dan riwayat belajar siswa'],
+                'pengajar': ['Data Pengajar & Tutor', 'Kelola pengajar profesional serta sesi mengajar Axiom'],
+                'pendapatan': ['Manajemen Pendapatan', 'Pencatatan SPP, pembayaran les, dan piutang siswa Axiom'],
+                'pengeluaran': ['Manajemen Pengeluaran', 'Pencatatan operasional, honor pengajar, dan biaya rutin'],
+                'laporan': ['Laporan Keuangan Komprehensif', 'Analisis arus kas, laba bersih, dan rekapitulasi keuangan Axiom'],
+                'pengaturan': ['Pengaturan Sistem Axiom', 'Konfigurasi profil instansi, akun, dan preferensi']
+            };
+
+            document.getElementById('page-title').innerText = titles[tab][0];
+            document.getElementById('page-subtitle').innerText = titles[tab][1];
+
+            // Render Content based on tab
+            const mainContent = document.getElementById('main-content');
+            mainContent.innerHTML = '';
+
+            if (tab === 'dashboard') renderDashboard(mainContent);
+            else if (tab === 'jadwal') renderJadwal(mainContent, subtab);
+            else if (tab === 'absensi') renderAbsensi(mainContent, subtab);
+            else if (tab === 'siswa') renderSiswa(mainContent, subtab);
+            else if (tab === 'pengajar') renderPengajar(mainContent, subtab);
+            else if (tab === 'pendapatan') renderPendapatan(mainContent, subtab);
+            else if (tab === 'pengeluaran') renderPengeluaran(mainContent, subtab);
+            else if (tab === 'laporan') renderLaporan(mainContent);
+            else if (tab === 'pengaturan') renderPengaturan(mainContent);
+
+            lucide.createIcons();
+        }
+
+        // --- RENDER DASHBOARD ---
+        function renderDashboard(container) {
+            const todayStr = getTodayDateString();
+            const totalSiswa = db.siswa.filter(s => s.status === 'Aktif').length;
+            const totalPengajar = db.pengajar.filter(p => p.status === 'Aktif').length;
+            
+            // Apply month/year filter to dashboard datasets
+            const filteredJadwalDb = filterByMonthAndYear(db.jadwal, 'tanggal');
+            const filteredAbsensiDb = filterByMonthAndYear(db.absensi, 'tanggal');
+            const filteredPendapatanDb = filterByMonthAndYear(db.pendapatan, 'tanggal');
+            const filteredPengeluaranDb = filterByMonthAndYear(db.pengeluaran, 'tanggal');
+
+            const sortedJadwal = [...filteredJadwalDb].sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+            const jadwalHariIni = sortedJadwal.filter(j => j.tanggal === todayStr || j.status === 'Terjadwal');
+            
+            const totalJadwalHariIni = jadwalHariIni.length;
+            const sesiSelesai = filteredJadwalDb.filter(j => j.status === 'Selesai').length;
+            const totalHadir = filteredAbsensiDb.filter(a => a.status === 'Hadir').length;
+            const totalTidakHadir = filteredAbsensiDb.filter(a => a.status !== 'Hadir').length;
+
+            const totalPendapatan = filteredPendapatanDb.reduce((acc, curr) => acc + curr.nominal, 0);
+            const totalPengeluaran = filteredPengeluaranDb.reduce((acc, curr) => acc + curr.nominal, 0);
+            const labaBersih = totalPendapatan - totalPengeluaran;
+
+            // Hitung pendapatan dan pengeluaran per bulan secara dinamis untuk grafik
+            const monthlyIncome = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+            const monthlyExpense = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+            db.pendapatan.forEach(p => {
+                if (p.tanggal) {
+                    const d = new Date(p.tanggal);
+                    if (d.getFullYear().toString() === selectedYear) {
+                        const month = d.getMonth();
+                        if (month >= 0 && month < 12) {
+                            monthlyIncome[month] += (p.nominal || 0);
+                        }
+                    }
+                }
+            });
+
+            db.pengeluaran.forEach(e => {
+                if (e.tanggal) {
+                    const d = new Date(e.tanggal);
+                    if (d.getFullYear().toString() === selectedYear) {
+                        const month = d.getMonth();
+                        if (month >= 0 && month < 12) {
+                            monthlyExpense[month] += (e.nominal || 0);
+                        }
+                    }
+                }
+            });
+
+            container.innerHTML = `
+                <!-- Statistics Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="glass-card p-5 rounded-2xl border border-darknavy-600/50 flex items-center justify-between shadow-lg">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-400">Total Siswa Aktif</p>
+                            <h3 class="text-2xl font-extrabold text-white mt-1">${totalSiswa} <span class="text-xs font-normal text-emerald-400">Siswa</span></h3>
+                            <p class="text-[10px] text-slate-400 mt-1">Terdaftar di Axiom Learning</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center">
+                            <i data-lucide="users" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                    <div class="glass-card p-5 rounded-2xl border border-darknavy-600/50 flex items-center justify-between shadow-lg">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-400">Total Pengajar</p>
+                            <h3 class="text-2xl font-extrabold text-white mt-1">${totalPengajar} <span class="text-xs font-normal text-purple-400">Tutor</span></h3>
+                            <p class="text-[10px] text-slate-400 mt-1">Pengajar privat & bimbel</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center">
+                            <i data-lucide="graduation-cap" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                    <div class="glass-card p-5 rounded-2xl border border-darknavy-600/50 flex items-center justify-between shadow-lg">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-400">Sesi Selesai (Periode Ini)</p>
+                            <h3 class="text-2xl font-extrabold text-white mt-1">${sesiSelesai} <span class="text-xs font-normal text-cyan-400">Sesi</span></h3>
+                            <p class="text-[10px] text-slate-400 mt-1">Dari ${filteredJadwalDb.length} jadwal periode ini</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center">
+                            <i data-lucide="calendar-check" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                    <div class="glass-card p-5 rounded-2xl border border-darknavy-600/50 flex items-center justify-between shadow-lg">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-400">Laba Bersih (Periode Ini)</p>
+                            <h3 class="text-2xl font-extrabold text-emerald-400 mt-1">Rp ${labaBersih.toLocaleString('id-ID')}</h3>
+                            <p class="text-[10px] text-slate-400 mt-1">Pendapatan - Pengeluaran</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                            <i data-lucide="wallet" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="glass-card p-6 rounded-2xl border border-darknavy-600/50 lg:col-span-2 shadow-lg">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 class="font-bold text-white text-base">Arus Keuangan Axiom (Real-time)</h3>
+                                <p class="text-xs text-slate-400">Grafik perbandingan pendapatan dan pengeluaran per bulan</p>
+                            </div>
+                            <span class="text-xs bg-darknavy-700 text-blue-400 px-3 py-1 rounded-xl font-semibold border border-darknavy-600">Tahun ${selectedYear}</span>
+                        </div>
+                        <div class="h-72 relative">
+                            <canvas id="financeChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-6 rounded-2xl border border-darknavy-600/50 shadow-lg flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-bold text-white text-base">Kehadiran Siswa</h3>
+                            <p class="text-xs text-slate-400">Rekap sesi bimbingan periode terpilih</p>
+                        </div>
+                        <div class="h-56 relative flex items-center justify-center my-2">
+                            <canvas id="attendanceChart"></canvas>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 pt-2 border-t border-darknavy-600/40 text-center">
+                            <div class="bg-darknavy-700/40 p-2 rounded-xl">
+                                <span class="text-xs text-slate-400">Hadir</span>
+                                <h4 class="font-extrabold text-emerald-400 text-sm">${totalHadir} Sesi</h4>
+                            </div>
+                            <div class="bg-darknavy-700/40 p-2 rounded-xl">
+                                <span class="text-xs text-slate-400">Tidak Hadir</span>
+                                <h4 class="font-extrabold text-rose-400 text-sm">${totalTidakHadir} Sesi</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Today's Schedule & Recent Activity -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="glass-card p-6 rounded-2xl border border-darknavy-600/50 shadow-lg">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-white text-base flex items-center gap-2">
+                                <i data-lucide="clock" class="w-5 h-5 text-blue-400"></i> Jadwal Les Terdekat
+                            </h3>
+                            <button onclick="switchTab('jadwal', 'hari-ini')" class="text-xs text-blue-400 font-semibold hover:underline">Lihat Semua</button>
+                        </div>
+                        <div class="space-y-3">
+                            ${jadwalHariIni.length > 0 ? jadwalHariIni.map(j => `
+                                <div class="flex items-center justify-between p-3.5 rounded-xl bg-darknavy-700/40 border border-darknavy-600/40">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center font-bold text-xs justify-center shrink-0">
+                                            ${j.waktuMulai}
+                                        </div>
+                                        <div>
+                                            <h4 class="font-bold text-white text-xs sm:text-sm">${j.siswa} <span class="text-slate-400 font-normal">(${j.kelas})</span></h4>
+                                            <p class="text-[11px] text-slate-400">${j.mapel} • ${j.pengajar} • <span class="text-emerald-400 font-semibold">Rp ${(j.fee || 150000).toLocaleString('id-ID')}</span></p>
+                                        </div>
+                                    </div>
+                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold ${j.status === 'Selesai' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}">${j.status}</span>
+                                </div>
+                            `).join('') : '<p class="text-xs text-slate-400 py-4 text-center">Tidak ada jadwal les terdekat untuk periode ini.</p>'}
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-6 rounded-2xl border border-darknavy-600/50 shadow-lg">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-white text-base flex items-center gap-2">
+                                <i data-lucide="activity" class="w-5 h-5 text-emerald-400"></i> Status Periode Terpilih
+                            </h3>
+                            <span class="text-xs text-slate-400">Real-time sync</span>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-start gap-3 p-3.5 rounded-xl bg-darknavy-700/40 border border-darknavy-600/40">
+                                <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                                    <i data-lucide="filter" class="w-4 h-4"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex items-center justify-between">
+                                        <p class="text-xs font-semibold text-slate-200">Filter Bulan Aktif</p>
+                                        <span class="text-[10px] text-slate-400">Tersaring</span>
+                                    </div>
+                                    <p class="text-[11px] text-slate-400">Data jadwal, absensi, dan keuangan hanya menampilkan catatan di periode bulan yang dipilih.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3 p-3.5 rounded-xl bg-darknavy-700/40 border border-darknavy-600/40">
+                                <div class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0">
+                                    <i data-lucide="calendar-plus" class="w-4 h-4"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex items-center justify-between">
+                                        <p class="text-xs font-semibold text-slate-200">Urutan Tanggal Terbaru</p>
+                                        <span class="text-[10px] text-slate-400">Aktif</span>
+                                    </div>
+                                    <p class="text-[11px] text-slate-400">Jadwal dan absensi otomatis diurutkan dari tanggal paling baru pada bulan terpilih.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Render Dynamic Charts
+            setTimeout(() => {
+                const ctxFinance = document.getElementById('financeChart').getContext('2d');
+                new Chart(ctxFinance, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
+                        datasets: [
+                            { label: 'Pendapatan', data: monthlyIncome, backgroundColor: '#3B82F6', borderRadius: 6 },
+                            { label: 'Pengeluaran', data: monthlyExpense, backgroundColor: '#EF4444', borderRadius: 6 }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { labels: { color: '#94A3B8', font: { size: 11 } } } },
+                        scales: {
+                            x: { grid: { color: 'rgba(58, 80, 107, 0.2)' }, ticks: { color: '#94A3B8' } },
+                            y: { grid: { color: 'rgba(58, 80, 107, 0.2)' }, ticks: { color: '#94A3B8' } }
+                        }
+                    }
+                });
+
+                const ctxAttendance = document.getElementById('attendanceChart').getContext('2d');
+                new Chart(ctxAttendance, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Hadir', 'Izin', 'Sakit', 'Alfa'],
+                        datasets: [{
+                            data: [
+                                filteredAbsensiDb.filter(a => a.status === 'Hadir').length,
+                                filteredAbsensiDb.filter(a => a.status === 'Izin').length,
+                                filteredAbsensiDb.filter(a => a.status === 'Sakit').length,
+                                filteredAbsensiDb.filter(a => a.status === 'Alfa').length
+                            ],
+                            backgroundColor: ['#10B981', '#3B82F6', '#F59E0B', '#EF4444'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom', labels: { color: '#94A3B8', font: { size: 10 } } } }
+                    }
+                });
+            }, 50);
+        }
+
+        // --- RENDER JADWAL ---
+        function renderJadwal(container, subtab) {
+            const todayStr = getTodayDateString();
+            let filteredJadwal = filterByMonthAndYear(db.jadwal, 'tanggal');
+
+            if (subtab === 'privat') filteredJadwal = filteredJadwal.filter(j => j.program === 'Privat');
+            else if (subtab === 'reguler') filteredJadwal = filteredJadwal.filter(j => j.program === 'Bimbel');
+            else if (subtab === 'online') filteredJadwal = filteredJadwal.filter(j => j.program === 'Online');
+            else if (subtab === 'hari-ini') filteredJadwal = filteredJadwal.filter(j => j.tanggal === todayStr);
+
+            if (searchQuery) {
+                filteredJadwal = filteredJadwal.filter(j => 
+                    j.siswa.toLowerCase().includes(searchQuery) ||
+                    j.mapel.toLowerCase().includes(searchQuery) ||
+                    j.pengajar.toLowerCase().includes(searchQuery)
+                );
+            }
+
+            // Urutkan berdasarkan tanggal terbaru (Descending)
+            filteredJadwal.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+
+            container.innerHTML = `
+                <div class="glass-card p-6 rounded-2xl border border-darknavy-600/50 shadow-lg space-y-6">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div>
+                            <h3 class="font-bold text-white text-lg">Jadwal Les Axiom (${subtab.toUpperCase()})</h3>
+                            <p class="text-xs text-slate-400">Diurutkan berdasarkan tanggal terbaru • Menampilkan data bulan terpilih</p>
+                        </div>
+                        <button onclick="openJadwalModal(null, '${subtab}')" class="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white px-4 py-2.5 rounded-xl font-bold text-xs transition shadow-lg shadow-blue-500/20">
+                            <i data-lucide="plus" class="w-4 h-4"></i> Tambah Jadwal
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="border-b border-darknavy-600/60 text-slate-400">
+                                    <th class="py-3 px-4">Siswa / Kelas</th>
+                                    <th class="py-3 px-4">Program & Mapel</th>
+                                    <th class="py-3 px-4">Materi</th>
+                                    <th class="py-3 px-4">Hari & Tanggal</th>
+                                    <th class="py-3 px-4">Fee Mengajar</th>
+                                    <th class="py-3 px-4">Pengajar</th>
+                                    <th class="py-3 px-4">Status</th>
+                                    <th class="py-3 px-4 text-right">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-darknavy-600/30">
+                                ${filteredJadwal.length > 0 ? filteredJadwal.map(j => `
+                                    <tr class="hover:bg-darknavy-700/30 transition">
+                                        <td class="py-3.5 px-4 font-bold text-white">${j.siswa} <br><span class="text-[10px] text-slate-400 font-normal">${j.kelas}</span></td>
+                                        <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded-lg text-[10px] bg-blue-500/20 text-blue-400 font-semibold">${j.program}</span><br><span class="text-slate-300">${j.mapel}</span></td>
+                                        <td class="py-3.5 px-4 text-slate-300">${j.materi}</td>
+                                        <td class="py-3.5 px-4 text-slate-300">${j.hari}, ${j.tanggal}<br><span class="text-[10px] text-cyan-400">${j.waktuMulai} - ${j.waktuSelesai}</span></td>
+                                        <td class="py-3.5 px-4 font-extrabold text-emerald-400">Rp ${(j.fee || 150000).toLocaleString('id-ID')}</td>
+                                        <td class="py-3.5 px-4 text-slate-300">${j.pengajar}</td>
+                                        <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-full text-[10px] font-semibold ${j.status === 'Selesai' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}">${j.status}</span></td>
+                                        <td class="py-3.5 px-4 text-right space-x-2">
+                                            <button onclick="editJadwal('${j.id}')" class="p-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/40"><i data-lucide="edit" class="w-3.5 h-3.5"></i></button>
+                                            <button onclick="deleteJadwal('${j.id}')" class="p-1.5 rounded-lg bg-rose-500/20 text-rose-400 hover:bg-rose-500/40"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                                        </td>
+                                    </tr>
+                                `).join('') : `
+                                    <tr>
+                                        <td colspan="8" class="py-8 text-center text-slate-400 text-xs">
+                                            Belum ada data jadwal untuk bulan/periode terpilih ini.
+                                        </td>
+                                    </tr>
+                                `}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- RENDER ABSENSI ---
+        function renderAbsensi(container, subtab) {
+            let filteredAbsensi = filterByMonthAndYear(db.absensi, 'tanggal');
+            if (subtab === 'privat') filteredAbsensi = filteredAbsensi.filter(a => a.program === 'Privat');
+            else if (subtab === 'bimbel') filteredAbsensi = filteredAbsensi.filter(a => a.program === 'Bimbel');
+            else if (subtab === 'online') filteredAbsensi = filteredAbsensi.filter(a => a.program === 'Online');
+
+            if (searchQuery) {
+                filteredAbsensi = filteredAbsensi.filter(a => 
+                    a.siswa.toLowerCase().includes(searchQuery) ||
+                    a.mapel.toLowerCase().includes(searchQuery) ||
+                    a.pengajar.toLowerCase().includes(searchQuery)
+                );
+            }
+
+            // Urutkan berdasarkan tanggal terbaru (Descending)
+            filteredAbsensi.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+
+            container.innerHTML = `
+                <div class="glass-card p-6 rounded-2xl border border-darknavy-600/50 shadow-lg space-y-6">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div>
+                            <h3 class="font-bold text-white text-lg">Absensi Siswa Axiom (${subtab.toUpperCase()})</h3>
+                            <p class="text-xs text-slate-400">Diurutkan berdasarkan tanggal terbaru • Menampilkan data bulan terpilih</p>
+                        </div>
+                        <button onclick="openAbsensiModal(null, '${subtab}')" class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl font-bold text-xs transition shadow-lg shadow-emerald-500/20">
+                            <i data-lucide="user-check" class="w-4 h-4"></i> Input Absensi Baru
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="border-b border-darknavy-600/60 text-slate-400">
+                                    <th class="py-3 px-4">Nama Siswa</th>
+                                    <th class="py-3 px-4">Program & Mapel</th>
+                                    <th class="py-3 px-4">Materi Pelajaran</th>
+                                    <th class="py-3 px-4">Tanggal & Waktu</th>
+                                    <th class="py-3 px-4">Pengajar</th>
+                                    <th class="py-3 px-4">Status Kehadiran</th>
+                                    <th class="py-3 px-4 text-right">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-darknavy-600/30">
+                                ${filteredAbsensi.length > 0 ? filteredAbsensi.map(a => `
+                                    <tr class="hover:bg-darknavy-700/30 transition">
+                                        <td class="py-3.5 px-4 font-bold text-white">${a.siswa} <br><span class="text-[10px] text-slate-400 font-normal">${a.kelas || 'Siswa'}</span></td>
+                                        <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded-lg text-[10px] bg-emerald-500/20 text-emerald-400 font-semibold">${a.program}</span><br><span class="text-slate-300">${a.mapel}</span></td>
+                                        <td class="py-3.5 px-4 text-slate-300">${a.materi}</td>
+                                        <td class="py-3.5 px-4 text-slate-300">${a.tanggal} <br><span class="text-[10px] text-cyan-400">${a.waktu || '15:30'} WIB</span></td>
+                                        <td class="py-3.5 px-4 text-slate-300">${a.pengajar}</td>
+                                        <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-full text-[10px] font-semibold ${a.status === 'Hadir' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}">${a.status}</span></td>
+                                        <td class="py-3.5 px-4 text-right space-x-2">
+                                            <button onclick="editAbsensi('${a.id}')" class="p-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/40"><i data-lucide="edit" class="w-3.5 h-3.5"></i></button>
+                                            <button onclick="deleteAbsensi('${a.id}')" class="p-1.5 rounded-lg bg-rose-500/20 text-rose-400 hover:bg-rose-500/40"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                                        </td>
+                                    </tr>
+                                `).join('') : `
+                                    <tr>
+                                        <td colspan="7" class="py-8 text-center text-slate-400 text-xs">
+                                            Belum ada data absensi untuk bulan terpilih ini.
+                                        </td>
+                                    </tr>
+                                `}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- RENDER ABSENSI ---
+        function renderAbsensi(container, subtab) {
+            let filteredAbsensi = [...db.absensi];
+            if (subtab === 'privat') filteredAbsensi = filteredAbsensi.filter(a => a.program === 'Privat');
+            else if (subtab === 'bimbel') filteredAbsensi = filteredAbsensi.filter(a => a.program === 'Bimbel');
+            else if (subtab === 'online') filteredAbsensi = filteredAbsensi.filter(a => a.program === 'Online');
+
+            if (searchQuery) {
+                filteredAbsensi = filteredAbsensi.filter(a => 
+                    a.siswa.toLowerCase().includes(searchQuery) ||
+                    a.mapel.toLowerCase().includes(searchQuery) ||
+                    a.pengajar.toLowerCase().includes(searchQuery)
+                );
+            }
+
+            // Urutkan berdasarkan tanggal terbaru (Descending)
+            filteredAbsensi.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+
+            container.innerHTML = `
+                <div class="glass-card p-6 rounded-2xl border border-darknavy-600/50 shadow-lg space-y-6">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div>
+                            <h3 class="font-bold text-white text-lg">Absensi Siswa Axiom (${subtab.toUpperCase()})</h3>
+                            <p class="text-xs text-slate-400">Diurutkan berdasarkan tanggal terbaru • Sinkronisasi otomatis dari jadwal les</p>
+                        </div>
+                        <button onclick="openAbsensiModal(null, '${subtab}')" class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl font-bold text-xs transition shadow-lg shadow-emerald-500/20">
+                            <i data-lucide="user-check" class="w-4 h-4"></i> Input Absensi Baru
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="border-b border-darknavy-600/60 text-slate-400">
+                                    <th class="py-3 px-4">Nama Siswa</th>
+                                    <th class="py-3 px-4">Program & Mapel</th>
+                                    <th class="py-3 px-4">Materi Pelajaran</th>
+                                    <th class="py-3 px-4">Tanggal & Waktu</th>
+                                    <th class="py-3 px-4">Pengajar</th>
+                                    <th class="py-3 px-4">Status Kehadiran</th>
+                                    <th class="py-3 px-4 text-right">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-darknavy-600/30">
+                                ${filteredAbsensi.length > 0 ? filteredAbsensi.map(a => `
+                                    <tr class="hover:bg-darknavy-700/30 transition">
+                                        <td class="py-3.5 px-4 font-bold text-white">${a.siswa} <br><span class="text-[10px] text-slate-400 font-normal">${a.kelas || 'Siswa'}</span></td>
+                                        <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded-lg text-[10px] bg-emerald-500/20 text-emerald-400 font-semibold">${a.program}</span><br><span class="text-slate-300">${a.mapel}</span></td>
+                                        <td class="py-3.5 px-4 text-slate-300">${a.materi}</td>
+                                        <td class="py-3.5 px-4 text-slate-300">${a.tanggal} <br><span class="text-[10px] text-cyan-400">${a.waktu || '15:30'} WIB</span></td>
+                                        <td class="py-3.5 px-4 text-slate-300">${a.pengajar}</td>
+                                        <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-full text-[10px] font-semibold ${a.status === 'Hadir' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}">${a.status}</span></td>
+                                        <td class="py-3.5 px-4 text-right space-x-2">
+                                            <button onclick="editAbsensi('${a.id}')" class="p-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/40"><i data-lucide="edit" class="w-3.5 h-3.5"></i></button>
+                                            <button onclick="deleteAbsensi('${a.id}')" class="p-1.5 rounded-lg bg-rose-500/20 text-rose-400 hover:bg-rose-500/40"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                                        </td>
+                                    </tr>
+                                `).join('') : `
+                                    <tr>
+                                        <td colspan="7" class="py-8 text-center text-slate-400 text-xs">
+                                            Belum ada data absensi untuk kategori ini.
+                                        </td>
+                                    </tr>
+                                `}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- RENDER SISWA ---
+        function renderSiswa(container, subtab) {
+            let filteredSiswa = db.siswa;
+            if (subtab === 'privat') filteredSiswa = db.siswa.filter(s => s.program === 'Privat');
+            else if (subtab === 'bimbel') filteredSiswa = db.siswa.filter(s => s.program === 'Bimbel');
+            else if (subtab === 'online') filteredSiswa = db.siswa.filter(s => s.program === 'Online');
+            else if (subtab === 'tidak-aktif') filteredSiswa = db.siswa.filter(s => s.status !== 'Aktif');
+
+            if (searchQuery) {
+                filteredSiswa = filteredSiswa.filter(s => 
+                    s.nama.toLowerCase().includes(searchQuery) ||
+                    s.mapel.toLowerCase().includes(searchQuery)
+                );
+            }
+
+            container.innerHTML = `
+                <div class="glass-card p-6 rounded-2xl border border-darknavy-600/50 shadow-lg space-y-6">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div>
+                            <h3 class="font-bold text-white text-lg">Manajemen Siswa Axiom (${subtab.toUpperCase()})</h3>
+                            <p class="text-xs text-slate-400">Kelola informasi lengkap siswa, orang tua, nomor WhatsApp, dan status aktif</p>
+                        </div>
+                        <button onclick="openSiswaModal(null, '${subtab}')" class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl font-bold text-xs transition shadow-lg shadow-blue-500/20">
+                            <i data-lucide="user-plus" class="w-4 h-4"></i> Tambah Siswa Baru
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="border-b border-darknavy-600/60 text-slate-400">
+                                    <th class="py-3 px-4">Nama Lengkap</th>
+                                    <th class="py-3 px-4">Kelas & Jenjang</th>
+                                    <th class="py-3 px-4">Program & Mapel</th>
+                                    <th class="py-3 px-4">Orang Tua / Wali</th>
+                                    <th class="py-3 px-4">WhatsApp</th>
+                                    <th class="py-3 px-4">Status</th>
+                                    <th class="py-3 px-4 text-right">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-darknavy-600/30">
+                                ${filteredSiswa.length > 0 ? filteredSiswa.map(s => `
+                                    <tr class="hover:bg-darknavy-700/30 transition">
+                                        <td class="py-3.5 px-4 font-bold text-white">${s.nama} <br><span class="text-[10px] text-slate-400 font-normal">${s.alamat}</span></td>
+                                        <td class="py-3.5 px-4 text-slate-300">${s.kelas} (${s.jenjang})</td>
+                                        <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded-lg text-[10px] bg-blue-500/20 text-blue-400 font-semibold">${s.program}</span><br><span class="text-slate-300">${s.mapel}</span></td>
+                                        <td class="py-3.5 px-4 text-slate-300">${s.orangTua}</td>
+                                        <td class="py-3.5 px-4 text-emerald-400 font-semibold">${s.whatsapp}</td>
+                                        <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-full text-[10px] font-semibold ${s.status === 'Aktif' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'}">${s.status}</span></td>
+                                        <td class="py-3.5 px-4 text-right space-x-2">
+                                            <button onclick="editSiswa('${s.id}')" class="p-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/40"><i data-lucide="edit" class="w-3.5 h-3.5"></i></button>
+                                            <button onclick="deleteSiswa('${s.id}')" class="p-1.5 rounded-lg bg-rose-500/20 text-rose-400 hover:bg-rose-500/40"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                                        </td>
+                                    </tr>
+                                `).join('') : `
+                                    <tr>
+                                        <td colspan="7" class="py-8 text-center text-slate-400 text-xs">
+                                            Belum ada data siswa untuk kategori ini.
+                                        </td>
+                                    </tr>
+                                `}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- RENDER PENGAJAR ---
+        function renderPengajar(container, subtab) {
+            let filteredPengajar = db.pengajar;
+            if (subtab === 'privat') filteredPengajar = db.pengajar.filter(p => p.program.includes('Privat'));
+            else if (subtab === 'bimbel') filteredPengajar = db.pengajar.filter(p => p.program.includes('Bimbel'));
+
+            if (searchQuery) {
+                filteredPengajar = filteredPengajar.filter(p => 
+                    p.nama.toLowerCase().includes(searchQuery) ||
+                    p.mapel.toLowerCase().includes(searchQuery)
+                );
+            }
+
+            container.innerHTML = `
+                <div class="glass-card p-6 rounded-2xl border border-darknavy-600/50 shadow-lg space-y-6">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div>
+                            <h3 class="font-bold text-white text-lg">Data Tutor & Pengajar Axiom (${subtab.toUpperCase()})</h3>
+                            <p class="text-xs text-slate-400">Rekap sesi mengajar, mata pelajaran, dan profil pengajar profesional</p>
+                        </div>
+                        <button onclick="openPengajarModal()" class="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2.5 rounded-xl font-bold text-xs transition shadow-lg shadow-purple-500/20">
+                            <i data-lucide="user-plus" class="w-4 h-4"></i> Tambah Pengajar
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        ${filteredPengajar.length > 0 ? filteredPengajar.map(p => `
+                            <div class="glass-card p-5 rounded-2xl border border-darknavy-600/60 space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 font-extrabold flex items-center justify-center">
+                                        ${p.nama.charAt(0)}
+                                    </div>
+                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-400">${p.status}</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-white text-sm">${p.nama}</h4>
+                                    <p class="text-xs text-blue-400 font-semibold mt-0.5">${p.mapel}</p>
+                                </div>
+                                <div class="space-y-1.5 text-xs text-slate-300">
+                                    <div class="flex justify-between"><span>Program:</span> <span class="font-medium text-white">${p.program}</span></div>
+                                    <div class="flex justify-between"><span>Jadwal:</span> <span class="font-medium text-white">${p.jadwal}</span></div>
+                                    <div class="flex justify-between"><span>Total Sesi:</span> <span class="font-medium text-cyan-400">${p.sesi} Sesi</span></div>
+                                    <div class="flex justify-between"><span>WhatsApp:</span> <span class="font-medium text-emerald-400">${p.whatsapp}</span></div>
+                                </div>
+                                <div class="flex justify-end gap-2 pt-2 border-t border-darknavy-600/40">
+                                    <button onclick="editPengajar('${p.id}')" class="px-3 py-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/40 text-xs font-semibold flex items-center gap-1"><i data-lucide="edit" class="w-3.5 h-3.5"></i> Edit</button>
+                                    <button onclick="deletePengajar('${p.id}')" class="px-3 py-1.5 rounded-lg bg-rose-500/20 text-rose-400 hover:bg-rose-500/40 text-xs font-semibold flex items-center gap-1"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Hapus</button>
+                                </div>
+                            </div>
+                        `).join('') : `
+                            <div class="col-span-3 text-center py-8 text-slate-400 text-xs">
+                                Belum ada pengajar untuk kategori ini.
+                            </div>
+                        `}
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- RENDER PENDAPATAN ---
+        function renderPendapatan(container, subtab) {
+            let filteredPendapatan = filterByMonthAndYear(db.pendapatan, 'tanggal');
+            if (subtab === 'pembayaran') filteredPendapatan = filteredPendapatan.filter(p => p.status === 'Lunas');
+            else if (subtab === 'piutang') filteredPendapatan = filteredPendapatan.filter(p => p.status !== 'Lunas');
+
+            if (searchQuery) {
+                filteredPendapatan = filteredPendapatan.filter(p => 
+                    p.nama.toLowerCase().includes(searchQuery) ||
+                    p.jenis.toLowerCase().includes(searchQuery)
+                );
+            }
+
+            const totalPendapatan = filteredPendapatan.reduce((acc, curr) => acc + curr.nominal, 0);
+
+            container.innerHTML = `
+                <div class="glass-card p-6 rounded-2xl border border-darknavy-600/50 shadow-lg space-y-6">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div>
+                            <h3 class="font-bold text-white text-lg">Pendapatan & SPB Axiom Learning (${subtab.toUpperCase()})</h3>
+                            <p class="text-xs text-slate-400">Total Pendapatan Terfilter (Bulan Ini): <span class="text-emerald-400 font-bold">Rp ${totalPendapatan.toLocaleString('id-ID')}</span></p>
+                        </div>
+                        <button onclick="openPendapatanModal()" class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl font-bold text-xs transition shadow-lg shadow-emerald-500/20">
+                            <i data-lucide="plus-circle" class="w-4 h-4"></i> Catat Pendapatan
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="border-b border-darknavy-600/60 text-slate-400">
+                                    <th class="py-3 px-4">Tanggal & Periode</th>
+                                    <th class="py-3 px-4">Nama Siswa / Pembayar</th>
+                                    <th class="py-3 px-4">Program & Jenis</th>
+                                    <th class="py-3 px-4">Nominal</th>
+                                    <th class="py-3 px-4">Metode</th>
+                                    <th class="py-3 px-4">Status</th>
+                                    <th class="py-3 px-4 text-right">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-darknavy-600/30">
+                                ${filteredPendapatan.length > 0 ? filteredPendapatan.map(p => `
+                                    <tr class="hover:bg-darknavy-700/30 transition">
+                                        <td class="py-3.5 px-4 text-slate-300">${p.tanggal} <br><span class="text-[10px] text-cyan-400">${p.periode}</span></td>
+                                        <td class="py-3.5 px-4 font-bold text-white">${p.nama}</td>
+                                        <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded-lg text-[10px] bg-blue-500/20 text-blue-400 font-semibold">${p.program}</span><br><span class="text-slate-300">${p.jenis}</span></td>
+                                        <td class="py-3.5 px-4 font-extrabold text-emerald-400">Rp ${p.nominal.toLocaleString('id-ID')}</td>
+                                        <td class="py-3.5 px-4 text-slate-300">${p.metode}</td>
+                                        <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-full text-[10px] font-semibold ${p.status === 'Lunas' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}">${p.status}</span></td>
+                                        <td class="py-3.5 px-4 text-right space-x-2">
+                                            <button onclick="editPendapatan('${p.id}')" class="p-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/40"><i data-lucide="edit" class="w-3.5 h-3.5"></i></button>
+                                            <button onclick="deletePendapatan('${p.id}')" class="p-1.5 rounded-lg bg-rose-500/20 text-rose-400 hover:bg-rose-500/40"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                                        </td>
+                                    </tr>
+                                `).join('') : `
+                                    <tr>
+                                        <td colspan="7" class="py-8 text-center text-slate-400 text-xs">
+                                            Tidak ada data pendapatan untuk bulan terpilih ini.
+                                        </td>
+                                    </tr>
+                                `}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- RENDER PENGELUARAN ---
+        function renderPengeluaran(container, subtab) {
+            let filteredPengeluaran = filterByMonthAndYear(db.pengeluaran, 'tanggal');
+            if (subtab === 'operasional') filteredPengeluaran = filteredPengeluaran.filter(e => e.kategori === 'Operasional');
+            else if (subtab === 'honor') filteredPengeluaran = filteredPengeluaran.filter(e => e.kategori === 'Honor Pengajar');
+
+            if (searchQuery) {
+                filteredPengeluaran = filteredPengeluaran.filter(e => 
+                    e.penerima.toLowerCase().includes(searchQuery) ||
+                    e.deskripsi.toLowerCase().includes(searchQuery)
+                );
+            }
+
+            const totalPengeluaran = filteredPengeluaran.reduce((acc, curr) => acc + curr.nominal, 0);
+
+            container.innerHTML = `
+                <div class="glass-card p-6 rounded-2xl border border-darknavy-600/50 shadow-lg space-y-6">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div>
+                            <h3 class="font-bold text-white text-lg">Pengeluaran & Operasional Axiom (${subtab.toUpperCase()})</h3>
+                            <p class="text-xs text-slate-400">Total Pengeluaran Terfilter (Bulan Ini): <span class="text-rose-400 font-bold">Rp ${totalPengeluaran.toLocaleString('id-ID')}</span></p>
+                        </div>
+                        <button onclick="openPengeluaranModal()" class="flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-4 py-2.5 rounded-xl font-bold text-xs transition shadow-lg shadow-rose-500/20">
+                            <i data-lucide="plus-circle" class="w-4 h-4"></i> Catat Pengeluaran
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="border-b border-darknavy-600/60 text-slate-400">
+                                    <th class="py-3 px-4">Tanggal</th>
+                                    <th class="py-3 px-4">Kategori</th>
+                                    <th class="py-3 px-4">Penerima / Terkait</th>
+                                    <th class="py-3 px-4">Deskripsi</th>
+                                    <th class="py-3 px-4">Nominal</th>
+                                    <th class="py-3 px-4">Metode</th>
+                                    <th class="py-3 px-4 text-right">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-darknavy-600/30">
+                                ${filteredPengeluaran.length > 0 ? filteredPengeluaran.map(e => `
+                                    <tr class="hover:bg-darknavy-700/30 transition">
+                                        <td class="py-3.5 px-4 text-slate-300">${e.tanggal}</td>
+                                        <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded-lg text-[10px] bg-rose-500/20 text-rose-400 font-semibold">${e.kategori}</span></td>
+                                        <td class="py-3.5 px-4 font-bold text-white">${e.penerima}</td>
+                                        <td class="py-3.5 px-4 text-slate-300">${e.deskripsi}</td>
+                                        <td class="py-3.5 px-4 font-extrabold text-rose-400">Rp ${e.nominal.toLocaleString('id-ID')}</td>
+                                        <td class="py-3.5 px-4 text-slate-300">${e.metode}</td>
+                                        <td class="py-3.5 px-4 text-right space-x-2">
+                                            <button onclick="editPengeluaran('${e.id}')" class="p-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/40"><i data-lucide="edit" class="w-3.5 h-3.5"></i></button>
+                                            <button onclick="deletePengeluaran('${e.id}')" class="p-1.5 rounded-lg bg-rose-500/20 text-rose-400 hover:bg-rose-500/40"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                                        </td>
+                                    </tr>
+                                `).join('') : `
+                                    <tr>
+                                        <td colspan="7" class="py-8 text-center text-slate-400 text-xs">
+                                            Tidak ada catatan pengeluaran untuk bulan terpilih ini.
+                                        </td>
+                                    </tr>
+                                `}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- RENDER LAPORAN KEUANGAN ---
+        function renderLaporan(container) {
+            const filteredPendapatan = filterByMonthAndYear(db.pendapatan, 'tanggal');
+            const filteredPengeluaran = filterByMonthAndYear(db.pengeluaran, 'tanggal');
+
+            const totalPendapatan = filteredPendapatan.reduce((acc, curr) => acc + curr.nominal, 0);
+            const totalPengeluaran = filteredPengeluaran.reduce((acc, curr) => acc + curr.nominal, 0);
+            const labaBersih = totalPendapatan - totalPengeluaran;
+
+            const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            const periodLabel = selectedMonth === 'all' ? `Tahun ${selectedYear}` : `${monthNames[parseInt(selectedMonth)]} ${selectedYear}`;
+
+            container.innerHTML = `
+                <div class="glass-card p-6 rounded-2xl border border-darknavy-600/50 shadow-lg space-y-6">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div>
+                            <h3 class="font-bold text-white text-lg">Laporan Keuangan Axiom (${periodLabel})</h3>
+                            <p class="text-xs text-slate-400">Formula: Laba Bersih = Total Pendapatan − Total Pengeluaran (Terfilter)</p>
+                        </div>
+                        <button onclick="window.print()" class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl font-bold text-xs transition shadow-lg shadow-blue-500/20">
+                            <i data-lucide="printer" class="w-4 h-4"></i> Cetak / Export PDF
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                        <div class="p-5 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
+                            <span class="text-xs text-emerald-400 font-semibold">Total Pendapatan (${periodLabel})</span>
+                            <h4 class="text-2xl font-extrabold text-white mt-1">Rp ${totalPendapatan.toLocaleString('id-ID')}</h4>
+                        </div>
+                        <div class="p-5 rounded-xl bg-rose-500/10 border border-rose-500/30">
+                            <span class="text-xs text-rose-400 font-semibold">Total Pengeluaran (${periodLabel})</span>
+                            <h4 class="text-2xl font-extrabold text-white mt-1">Rp ${totalPengeluaran.toLocaleString('id-ID')}</h4>
+                        </div>
+                        <div class="p-5 rounded-xl bg-blue-500/10 border border-blue-500/30">
+                            <span class="text-xs text-blue-400 font-semibold">Laba Bersih Axiom (${periodLabel})</span>
+                            <h4 class="text-2xl font-extrabold text-blue-400 mt-1">Rp ${labaBersih.toLocaleString('id-ID')}</h4>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- RENDER PENGATURAN ---
+        function renderPengaturan(container) {
+            container.innerHTML = `
+                <div class="glass-card p-6 rounded-2xl border border-darknavy-600/50 shadow-lg space-y-6 max-w-2xl">
+                    <div>
+                        <h3 class="font-bold text-white text-lg">Pengaturan Profil Axiom Learning</h3>
+                        <p class="text-xs text-slate-400">Konfigurasi informasi instansi bimbingan belajar Axiom</p>
+                    </div>
+                    <div class="space-y-4 text-xs">
+                        <div>
+                            <label class="block text-slate-300 font-semibold mb-1">Nama Bimbel</label>
+                            <input type="text" id="settingNama" value="${db.settings.namaBimbel}" class="w-full bg-darknavy-700/60 border border-darknavy-600 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-slate-300 font-semibold mb-1">Tahun Ajaran</label>
+                            <input type="text" id="settingTahun" value="${db.settings.tahunAjaran}" class="w-full bg-darknavy-700/60 border border-darknavy-600 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-slate-300 font-semibold mb-1">Nomor Telepon</label>
+                            <input type="text" id="settingTelp" value="${db.settings.telepon}" class="w-full bg-darknavy-700/60 border border-darknavy-600 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-slate-300 font-semibold mb-1">Alamat Kantor</label>
+                            <textarea id="settingAlamat" class="w-full bg-darknavy-700/60 border border-darknavy-600 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-blue-500">${db.settings.alamat}</textarea>
+                        </div>
+                        <button onclick="saveSettings()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold transition shadow-lg shadow-blue-500/20">
+                            Simpan Perubahan
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function saveSettings() {
+            db.settings.namaBimbel = document.getElementById('settingNama').value;
+            db.settings.tahunAjaran = document.getElementById('settingTahun').value;
+            db.settings.telepon = document.getElementById('settingTelp').value;
+            db.settings.alamat = document.getElementById('settingAlamat').value;
+            saveDatabase();
+            showToast('Pengaturan Axiom berhasil disimpan!', 'success');
+        }
+
+        // --- MODAL DIALOGS & COMPLETE CRUD LOGIC ---
+        function openModal(htmlContent) {
+            const container = document.getElementById('modal-container');
+            const content = document.getElementById('modal-content');
+            content.innerHTML = htmlContent;
+            container.classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeModal() {
+            document.getElementById('modal-container').classList.add('hidden');
+        }
+
+        function updateKelasDropdownOptions(jenjang, selectedKelas = '') {
+            const kelasSelect = document.getElementById('kelasSiswa');
+            if (!kelasSelect) return;
+
+            const options = classOptions[jenjang] || classOptions['SMA'];
+            kelasSelect.innerHTML = options.map(k => `<option value="${k}" ${k === selectedKelas ? 'selected' : ''}>${k}</option>`).join('');
+        }
+
+        // --- 1. CRUD SISWA ---
+        function openSiswaModal(siswaId = null, subtabContext = 'semua') {
+            const item = siswaId ? db.siswa.find(s => s.id === siswaId) : null;
+            const defaultJenjang = item ? item.jenjang : 'SMA';
+            const defaultProg = (subtabContext === 'privat' ? 'Privat' : subtabContext === 'online' ? 'Online' : 'Bimbel');
+            
+            openModal(`
+                <div class="p-6 space-y-4">
+                    <div class="flex items-center justify-between pb-3 border-b border-darknavy-600">
+                        <h3 class="font-bold text-white text-sm">${item ? 'Edit Data Siswa' : 'Tambah Siswa Axiom Baru'}</h3>
+                        <button onclick="closeModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+                    </div>
+                    <form onsubmit="handleSaveSiswa(event, '${siswaId || ''}')" class="space-y-3">
+                        <div>
+                            <label class="form-label">Nama Lengkap Siswa</label>
+                            <input type="text" id="namaSiswa" value="${item ? item.nama : ''}" required placeholder="Masukkan nama siswa" class="form-input">
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="form-label">Jenjang Pendidikan</label>
+                                <select id="jenjangSiswa" onchange="updateKelasDropdownOptions(this.value)" class="form-select">
+                                    <option ${defaultJenjang === 'SD' ? 'selected' : ''} value="SD">SD</option>
+                                    <option ${defaultJenjang === 'SMP' ? 'selected' : ''} value="SMP">SMP</option>
+                                    <option ${defaultJenjang === 'SMA' ? 'selected' : ''} value="SMA">SMA</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Kelas</label>
+                                <select id="kelasSiswa" class="form-select" required></select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="form-label">Program Les</label>
+                                <select id="programSiswa" class="form-select">
+                                    <option ${(item ? item.program : defaultProg) === 'Bimbel' ? 'selected' : ''}>Bimbel</option>
+                                    <option ${(item ? item.program : defaultProg) === 'Privat' ? 'selected' : ''}>Privat</option>
+                                    <option ${(item ? item.program : defaultProg) === 'Online' ? 'selected' : ''}>Online</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Mata Pelajaran</label>
+                                <input type="text" id="mapelSiswa" value="${item ? item.mapel : ''}" placeholder="Matematika & Fisika" required class="form-input">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="form-label">WhatsApp Orang Tua / Wali</label>
+                                <input type="text" id="waSiswa" value="${item ? item.whatsapp : ''}" placeholder="0812xxxxxxxx" required class="form-input">
+                            </div>
+                            <div>
+                                <label class="form-label">Status Siswa</label>
+                                <select id="statusSiswa" class="form-select">
+                                    <option ${(item ? item.status : (subtabContext === 'tidak-aktif' ? 'Tidak Aktif' : 'Aktif')) === 'Aktif' ? 'selected' : ''}>Aktif</option>
+                                    <option ${(item ? item.status : (subtabContext === 'tidak-aktif' ? 'Tidak Aktif' : 'Aktif')) === 'Tidak Aktif' ? 'selected' : ''}>Tidak Aktif</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-label">Alamat Lengkap</label>
+                            <input type="text" id="alamatSiswa" value="${item ? item.alamat : ''}" placeholder="Jl. Contoh No. 1" required class="form-input">
+                        </div>
+                        <div class="flex justify-end gap-2 pt-3">
+                            <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-xl bg-darknavy-700 text-slate-300 font-semibold text-xs">Batal</button>
+                            <button type="submit" class="btn-submit">${item ? 'Perbarui Data' : 'Simpan Siswa'}</button>
+                        </div>
+                    </form>
+                </div>
+            `);
+
+            updateKelasDropdownOptions(defaultJenjang, item ? item.kelas : '');
+        }
+
+        function handleSaveSiswa(e, id) {
+            e.preventDefault();
+            if (id) {
+                const item = db.siswa.find(s => s.id === id);
+                if (item) {
+                    item.nama = document.getElementById('namaSiswa').value;
+                    item.kelas = document.getElementById('kelasSiswa').value;
+                    item.jenjang = document.getElementById('jenjangSiswa').value;
+                    item.program = document.getElementById('programSiswa').value;
+                    item.mapel = document.getElementById('mapelSiswa').value;
+                    item.whatsapp = document.getElementById('waSiswa').value;
+                    item.status = document.getElementById('statusSiswa').value;
+                    item.alamat = document.getElementById('alamatSiswa').value;
+                }
+                showToast('Data siswa berhasil diperbarui!', 'success');
+            } else {
+                const newS = {
+                    id: 'S00' + (db.siswa.length + 1),
+                    nama: document.getElementById('namaSiswa').value,
+                    kelas: document.getElementById('kelasSiswa').value,
+                    jenjang: document.getElementById('jenjangSiswa').value,
+                    program: document.getElementById('programSiswa').value,
+                    mapel: document.getElementById('mapelSiswa').value,
+                    orangTua: 'Bapak / Ibu Wali',
+                    whatsapp: document.getElementById('waSiswa').value,
+                    alamat: document.getElementById('alamatSiswa').value,
+                    bergabung: getTodayDateString(),
+                    status: document.getElementById('statusSiswa').value,
+                    keterangan: 'Pendaftaran siswa baru'
+                };
+                db.siswa.push(newS);
+                showToast('Siswa baru berhasil ditambahkan!', 'success');
+            }
+            saveDatabase();
+            closeModal();
+            switchTab('siswa', currentSubTab);
+        }
+
+        function editSiswa(id) { openSiswaModal(id, currentSubTab); }
+        function deleteSiswa(id) {
+            db.siswa = db.siswa.filter(s => s.id !== id);
+            saveDatabase();
+            showToast('Data siswa berhasil dihapus', 'info');
+            switchTab('siswa', currentSubTab);
+        }
+
+        // --- 2. CRUD JADWAL ---
+        function openJadwalModal(jadwalId = null, subtabContext = 'semua') {
+            const item = jadwalId ? db.jadwal.find(j => j.id === jadwalId) : null;
+            const defaultProg = (subtabContext === 'privat' ? 'Privat' : subtabContext === 'online' ? 'Online' : 'Bimbel');
+            const defaultDate = subtabContext === 'hari-ini' ? getTodayDateString() : (item ? item.tanggal : getTodayDateString());
+
+            const siswaList = db.siswa.filter(s => s.status === 'Aktif');
+            const pengajarList = db.pengajar.filter(p => p.status === 'Aktif');
+
+            openModal(`
+                <div class="p-6 space-y-4">
+                    <div class="flex items-center justify-between pb-3 border-b border-darknavy-600">
+                        <h3 class="font-bold text-white text-sm">${item ? 'Edit Jadwal Les' : 'Tambah Jadwal Les Axiom'}</h3>
+                        <button onclick="closeModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+                    </div>
+                    <form onsubmit="handleSaveJadwal(event, '${jadwalId || ''}')" class="space-y-3">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="form-label">Pilih Siswa</label>
+                                <select id="jSiswaSelect" onchange="onJadwalSiswaChange(this.value)" class="form-select" required>
+                                    <option value="">-- Pilih Siswa --</option>
+                                    ${siswaList.map(s => `<option value="${s.id}" data-nama="${s.nama}" data-kelas="${s.kelas}" ${item && item.siswa === s.nama ? 'selected' : ''}>${s.nama} (${s.kelas})</option>`).join('')}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Tingkat Kelas</label>
+                                <input type="text" id="jKelas" value="${item ? item.kelas : ''}" placeholder="Kelas 12" required class="form-input">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="form-label">Program Les</label>
+                                <select id="jProgram" class="form-select">
+                                    <option ${(item ? item.program : defaultProg) === 'Bimbel' ? 'selected' : ''}>Bimbel</option>
+                                    <option ${(item ? item.program : defaultProg) === 'Privat' ? 'selected' : ''}>Privat</option>
+                                    <option ${(item ? item.program : defaultProg) === 'Online' ? 'selected' : ''}>Online</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Mata Pelajaran</label>
+                                <input type="text" id="jMapel" value="${item ? item.mapel : ''}" placeholder="Matematika" required class="form-input">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="form-label">Materi Pembelajaran</label>
+                                <input type="text" id="jMateri" value="${item ? item.materi : ''}" placeholder="Topik bahasan" required class="form-input">
+                            </div>
+                            <div>
+                                <label class="form-label">Fee Mengajar / Biaya Sesi (Rp)</label>
+                                <input type="number" id="jFee" value="${item ? (item.fee || 150000) : 150000}" placeholder="150000" required class="form-input">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="form-label">Tanggal Sesi</label>
+                                <input type="date" id="jTanggal" value="${defaultDate}" required class="form-input">
+                            </div>
+                            <div>
+                                <label class="form-label">Pengajar / Tutor</label>
+                                <select id="jPengajar" class="form-select" required>
+                                    ${pengajarList.map(p => `<option value="${p.nama}" ${item && item.pengajar === p.nama ? 'selected' : ''}>${p.nama}</option>`).join('')}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2">
+                            <div>
+                                <label class="form-label">Waktu Mulai</label>
+                                <input type="text" id="jMulai" value="${item ? item.waktuMulai : '15:30'}" placeholder="15:30" required class="form-input">
+                            </div>
+                            <div>
+                                <label class="form-label">Waktu Selesai</label>
+                                <input type="text" id="jSelesai" value="${item ? item.waktuSelesai : '17:00'}" placeholder="17:00" required class="form-input">
+                            </div>
+                            <div>
+                                <label class="form-label">Status</label>
+                                <select id="jStatus" class="form-select">
+                                    <option ${item && item.status === 'Terjadwal' ? 'selected' : ''}>Terjadwal</option>
+                                    <option ${item && item.status === 'Selesai' ? 'selected' : ''}>Selesai</option>
+                                    <option ${item && item.status === 'Dibatalkan' ? 'selected' : ''}>Dibatalkan</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="flex justify-end gap-2 pt-3">
+                            <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-xl bg-darknavy-700 text-slate-300 font-semibold text-xs">Batal</button>
+                            <button type="submit" class="btn-submit">${item ? 'Perbarui Jadwal' : 'Simpan Jadwal'}</button>
+                        </div>
+                    </form>
+                </div>
+            `);
+        }
+
+        function onJadwalSiswaChange(siswaId) {
+            const siswaObj = db.siswa.find(s => s.id === siswaId);
+            if (siswaObj) {
+                document.getElementById('jKelas').value = siswaObj.kelas;
+                document.getElementById('jMapel').value = siswaObj.mapel;
+                document.getElementById('jProgram').value = siswaObj.program;
+            }
+        }
+
+        function handleSaveJadwal(e, id) {
+            e.preventDefault();
+            const selectEl = document.getElementById('jSiswaSelect');
+            const selectedOpt = selectEl.options[selectEl.selectedIndex];
+            const namaSiswa = selectedOpt ? selectedOpt.getAttribute('data-nama') : document.getElementById('jSiswaSelect').value;
+
+            const newStatus = document.getElementById('jStatus').value;
+            const kelasVal = document.getElementById('jKelas').value;
+            const programVal = document.getElementById('jProgram').value;
+            const mapelVal = document.getElementById('jMapel').value;
+            const materiVal = document.getElementById('jMateri').value;
+            const feeVal = parseFloat(document.getElementById('jFee').value) || 150000;
+            const tanggalVal = document.getElementById('jTanggal').value;
+            const pengajarVal = document.getElementById('jPengajar').value;
+            const waktuMulaiVal = document.getElementById('jMulai').value;
+
+            let currentJadwalId = id;
+
+            if (id) {
+                const item = db.jadwal.find(j => j.id === id);
+                if (item) {
+                    item.siswa = namaSiswa;
+                    item.kelas = kelasVal;
+                    item.program = programVal;
+                    item.mapel = mapelVal;
+                    item.materi = materiVal;
+                    item.fee = feeVal;
+                    item.tanggal = tanggalVal;
+                    item.pengajar = pengajarVal;
+                    item.waktuMulai = waktuMulaiVal;
+                    item.waktuSelesai = document.getElementById('jSelesai').value;
+                    item.status = newStatus;
+                }
+                showToast('Jadwal les berhasil diperbarui!', 'success');
+            } else {
+                currentJadwalId = 'J00' + (db.jadwal.length + 1);
+                const newJ = {
+                    id: currentJadwalId,
+                    siswa: namaSiswa,
+                    kelas: kelasVal,
+                    program: programVal,
+                    mapel: mapelVal,
+                    materi: materiVal,
+                    fee: feeVal,
+                    hari: 'Aktif',
+                    tanggal: tanggalVal,
+                    waktuMulai: waktuMulaiVal,
+                    waktuSelesai: document.getElementById('jSelesai').value,
+                    pengajar: pengajarVal,
+                    keterangan: 'Ruang Bimbingan',
+                    status: newStatus
+                };
+                db.jadwal.push(newJ);
+                showToast('Jadwal les baru berhasil ditambahkan!', 'success');
+            }
+
+            // OTOMATIS REKAP KE ABSENSI DAN PENDAPATAN JIKA STATUS "SELESAI"
+            if (newStatus === 'Selesai') {
+                // 1. Rekap ke Absensi
+                const existingAbsensi = db.absensi.find(a => a.siswa === namaSiswa && a.tanggal === tanggalVal && a.mapel === mapelVal);
+                if (existingAbsensi) {
+                    existingAbsensi.kelas = kelasVal;
+                    existingAbsensi.program = programVal;
+                    existingAbsensi.materi = materiVal;
+                    existingAbsensi.waktu = waktuMulaiVal;
+                    existingAbsensi.pengajar = pengajarVal;
+                    existingAbsensi.status = 'Hadir';
+                } else {
+                    db.absensi.push({
+                        id: 'A00' + (db.absensi.length + 1),
+                        siswa: namaSiswa,
+                        kelas: kelasVal,
+                        program: programVal,
+                        mapel: mapelVal,
+                        materi: materiVal,
+                        tanggal: tanggalVal,
+                        waktu: waktuMulaiVal,
+                        pengajar: pengajarVal,
+                        status: 'Hadir',
+                        keterangan: 'Otomatis terekap dari sesi selesai'
+                    });
+                }
+
+                // 2. Rekap otomatis Fee Sesi ke Pendapatan
+                const feeIncomeDescription = `Fee Les ${mapelVal} (Sesi ${currentJadwalId})`;
+                const existingIncome = db.pendapatan.find(p => p.jenis === feeIncomeDescription && p.nama === namaSiswa && p.tanggal === tanggalVal);
+                if (existingIncome) {
+                    existingIncome.nominal = feeVal;
+                    existingIncome.program = programVal;
+                } else {
+                    db.pendapatan.push({
+                        id: 'P00' + (db.pendapatan.length + 1),
+                        tanggal: tanggalVal,
+                        nama: namaSiswa,
+                        program: programVal,
+                        jenis: feeIncomeDescription,
+                        periode: 'Maret 2026',
+                        nominal: feeVal,
+                        metode: 'Otomatis',
+                        status: 'Lunas',
+                        keterangan: 'Rekap otomatis sesi selesai'
+                    });
+                }
+
+                showToast(`Absensi & Fee Rp ${feeVal.toLocaleString('id-ID')} terekap otomatis di Pendapatan!`, 'info');
+            }
+
+            saveDatabase();
+            closeModal();
+            switchTab('jadwal', currentSubTab);
+        }
+
+        function editJadwal(id) { openJadwalModal(id, currentSubTab); }
+        function deleteJadwal(id) {
+            db.jadwal = db.jadwal.filter(j => j.id !== id);
+            saveDatabase();
+            showToast('Jadwal berhasil dihapus', 'info');
+            switchTab('jadwal', currentSubTab);
+        }
+
+        // --- 3. CRUD ABSENSI ---
+        function openAbsensiModal(absensiId = null, subtabContext = 'semua') {
+            const item = absensiId ? db.absensi.find(a => a.id === absensiId) : null;
+            const defaultProg = (subtabContext === 'privat' ? 'Privat' : subtabContext === 'online' ? 'Online' : 'Bimbel');
+            const siswaList = db.siswa.filter(s => s.status === 'Aktif');
+            const pengajarList = db.pengajar.filter(p => p.status === 'Aktif');
+
+            openModal(`
+                <div class="p-6 space-y-4">
+                    <div class="flex items-center justify-between pb-3 border-b border-darknavy-600">
+                        <h3 class="font-bold text-white text-sm">${item ? 'Edit Rekap Absensi' : 'Input Absensi Siswa Axiom'}</h3>
+                        <button onclick="closeModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+                    </div>
+                    <form onsubmit="handleSaveAbsensi(event, '${absensiId || ''}')" class="space-y-3">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="form-label">Nama Siswa</label>
+                                <select id="aSiswaSelect" onchange="onAbsensiSiswaChange(this.value)" class="form-select" required>
+                                    <option value="">-- Pilih Siswa --</option>
+                                    ${siswaList.map(s => `<option value="${s.id}" data-nama="${s.nama}" data-kelas="${s.kelas}" ${item && item.siswa === s.nama ? 'selected' : ''}>${s.nama} (${s.kelas})</option>`).join('')}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Kelas Siswa</label>
+                                <input type="text" id="aKelas" value="${item ? item.kelas : ''}" placeholder="Kelas 12" required class="form-input">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="form-label">Program Les</label>
+                                <select id="aProgram" class="form-select">
+                                    <option ${(item ? item.program : defaultProg) === 'Bimbel' ? 'selected' : ''}>Bimbel</option>
+                                    <option ${(item ? item.program : defaultProg) === 'Privat' ? 'selected' : ''}>Privat</option>
+                                    <option ${(item ? item.program : defaultProg) === 'Online' ? 'selected' : ''}>Online</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Mata Pelajaran</label>
+                                <input type="text" id="aMapel" value="${item ? item.mapel : ''}" required placeholder="Matematika" class="form-input">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-label">Materi Pelajaran</label>
+                            <input type="text" id="aMateri" value="${item ? item.materi : ''}" placeholder="Topik bahasan" required class="form-input">
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="form-label">Tanggal</label>
+                                <input type="date" id="aTanggal" value="${item ? item.tanggal : getTodayDateString()}" required class="form-input">
+                            </div>
+                            <div>
+                                <label class="form-label">Status Kehadiran</label>
+                                <select id="aStatus" class="form-select">
+                                    <option ${item && item.status === 'Hadir' ? 'selected' : ''}>Hadir</option>
+                                    <option ${item && item.status === 'Izin' ? 'selected' : ''}>Izin</option>
+                                    <option ${item && item.status === 'Sakit' ? 'selected' : ''}>Sakit</option>
+                                    <option ${item && item.status === 'Alfa' ? 'selected' : ''}>Alfa</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-label">Nama Pengajar</label>
+                            <select id="aPengajar" class="form-select" required>
+                                ${pengajarList.map(p => `<option value="${p.nama}" ${item && item.pengajar === p.nama ? 'selected' : ''}>${p.nama}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="flex justify-end gap-2 pt-3">
+                            <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-xl bg-darknavy-700 text-slate-300 font-semibold text-xs">Batal</button>
+                            <button type="submit" class="btn-submit">${item ? 'Perbarui Absensi' : 'Simpan Absensi'}</button>
+                        </div>
+                    </form>
+                </div>
+            `);
+        }
+
+        function onAbsensiSiswaChange(siswaId) {
+            const siswaObj = db.siswa.find(s => s.id === siswaId);
+            if (siswaObj) {
+                document.getElementById('aKelas').value = siswaObj.kelas;
+                document.getElementById('aMapel').value = siswaObj.mapel;
+                document.getElementById('aProgram').value = siswaObj.program;
+            }
+        }
+
+        function handleSaveAbsensi(e, id) {
+            e.preventDefault();
+            const selectEl = document.getElementById('aSiswaSelect');
+            const selectedOpt = selectEl.options[selectEl.selectedIndex];
+            const namaSiswa = selectedOpt ? selectedOpt.getAttribute('data-nama') : document.getElementById('aSiswaSelect').value;
+
+            if (id) {
+                const item = db.absensi.find(a => a.id === id);
+                if (item) {
+                    item.siswa = namaSiswa;
+                    item.kelas = document.getElementById('aKelas').value;
+                    item.program = document.getElementById('aProgram').value;
+                    item.mapel = document.getElementById('aMapel').value;
+                    item.materi = document.getElementById('aMateri').value;
+                    item.tanggal = document.getElementById('aTanggal').value;
+                    item.status = document.getElementById('aStatus').value;
+                    item.pengajar = document.getElementById('aPengajar').value;
+                }
+                showToast('Data absensi diperbarui!', 'success');
+            } else {
+                const newA = {
+                    id: 'A00' + (db.absensi.length + 1),
+                    siswa: namaSiswa,
+                    kelas: document.getElementById('aKelas').value,
+                    program: document.getElementById('aProgram').value,
+                    mapel: document.getElementById('aMapel').value,
+                    materi: document.getElementById('aMateri').value,
+                    tanggal: document.getElementById('aTanggal').value,
+                    waktu: '15:30',
+                    pengajar: document.getElementById('aPengajar').value,
+                    status: document.getElementById('aStatus').value,
+                    keterangan: 'Input manual admin'
+                };
+                db.absensi.push(newA);
+                showToast('Absensi baru berhasil dicatat!', 'success');
+            }
+            saveDatabase();
+            closeModal();
+            switchTab('absensi', currentSubTab);
+        }
+
+        function editAbsensi(id) { openAbsensiModal(id, currentSubTab); }
+        function deleteAbsensi(id) {
+            db.absensi = db.absensi.filter(a => a.id !== id);
+            saveDatabase();
+            showToast('Data absensi berhasil dihapus', 'info');
+            switchTab('absensi', currentSubTab);
+        }
+
+        // --- 4. CRUD PENGAJAR ---
+        function openPengajarModal(pengajarId = null) {
+            const item = pengajarId ? db.pengajar.find(p => p.id === pengajarId) : null;
+            openModal(`
+                <div class="p-6 space-y-4">
+                    <div class="flex items-center justify-between pb-3 border-b border-darknavy-600">
+                        <h3 class="font-bold text-white text-sm">${item ? 'Edit Tutor / Pengajar' : 'Tambah Tutor / Pengajar Axiom'}</h3>
+                        <button onclick="closeModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+                    </div>
+                    <form onsubmit="handleSavePengajar(event, '${pengajarId || ''}')" class="space-y-3">
+                        <div>
+                            <label class="form-label">Nama Pengajar & Gelar</label>
+                            <input type="text" id="tNama" value="${item ? item.nama : ''}" required placeholder="Contoh: Kak Budi, S.Pd." class="form-input">
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="form-label">Mata Pelajaran Utama</label>
+                                <input type="text" id="tMapel" value="${item ? item.mapel : ''}" placeholder="Matematika" required class="form-input">
+                            </div>
+                            <div>
+                                <label class="form-label">WhatsApp</label>
+                                <input type="text" id="tWA" value="${item ? item.whatsapp : ''}" placeholder="0812xxxxxxxx" required class="form-input">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="form-label">Program yang Diampu</label>
+                                <input type="text" id="tProgram" value="${item ? item.program : ''}" placeholder="Bimbel & Privat" required class="form-input">
+                            </div>
+                            <div>
+                                <label class="form-label">Hari Mengajar</label>
+                                <input type="text" id="tJadwal" value="${item ? item.jadwal : ''}" placeholder="Senin, Rabu" required class="form-input">
+                            </div>
+                        </div>
+                        <div class="flex justify-end gap-2 pt-3">
+                            <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-xl bg-darknavy-700 text-slate-300 font-semibold text-xs">Batal</button>
+                            <button type="submit" class="btn-submit">${item ? 'Perbarui Data' : 'Simpan Pengajar'}</button>
+                        </div>
+                    </form>
+                </div>
+            `);
+        }
+
+        function handleSavePengajar(e, id) {
+            e.preventDefault();
+            if (id) {
+                const item = db.pengajar.find(p => p.id === id);
+                if (item) {
+                    item.nama = document.getElementById('tNama').value;
+                    item.mapel = document.getElementById('tMapel').value;
+                    item.whatsapp = document.getElementById('tWA').value;
+                    item.program = document.getElementById('tProgram').value;
+                    item.jadwal = document.getElementById('tJadwal').value;
+                }
+                showToast('Profil pengajar berhasil diperbarui!', 'success');
+            } else {
+                const newT = {
+                    id: 'T00' + (db.pengajar.length + 1),
+                    nama: document.getElementById('tNama').value,
+                    mapel: document.getElementById('tMapel').value,
+                    whatsapp: document.getElementById('tWA').value,
+                    program: document.getElementById('tProgram').value,
+                    jadwal: document.getElementById('tJadwal').value,
+                    sesi: 0,
+                    status: 'Aktif'
+                };
+                db.pengajar.push(newT);
+                showToast('Pengajar baru berhasil ditambahkan!', 'success');
+            }
+            saveDatabase();
+            closeModal();
+            switchTab('pengajar', currentSubTab);
+        }
+
+        function editPengajar(id) { openPengajarModal(id); }
+        function deletePengajar(id) {
+            db.pengajar = db.pengajar.filter(p => p.id !== id);
+            saveDatabase();
+            showToast('Data pengajar berhasil dihapus', 'info');
+            switchTab('pengajar', currentSubTab);
+        }
+
+        // --- 5. CRUD PENDAPATAN ---
+        function openPendapatanModal(pendapatanId = null) {
+            const item = pendapatanId ? db.pendapatan.find(p => p.id === pendapatanId) : null;
+            openModal(`
+                <div class="p-6 space-y-4">
+                    <div class="flex items-center justify-between pb-3 border-b border-darknavy-600">
+                        <h3 class="font-bold text-white text-sm">${item ? 'Edit Transaksi Pendapatan' : 'Catat Pendapatan SPB / Les'}</h3>
+                        <button onclick="closeModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+                    </div>
+                    <form onsubmit="handleSavePendapatan(event, '${pendapatanId || ''}')" class="space-y-3">
+                        <div>
+                            <label class="form-label">Nama Siswa / Pembayar</label>
+                            <input type="text" id="pNama" value="${item ? item.nama : ''}" required placeholder="Nama pembayar" class="form-input">
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="form-label">Program Les</label>
+                                <select id="pProgram" class="form-select">
+                                    <option ${item && item.program === 'Bimbel' ? 'selected' : ''}>Bimbel</option>
+                                    <option ${item && item.program === 'Privat' ? 'selected' : ''}>Privat</option>
+                                    <option ${item && item.program === 'Online' ? 'selected' : ''}>Online</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Jenis Pembayaran</label>
+                                <input type="text" id="pJenis" value="${item ? item.jenis : 'SPB Bulanan'}" required class="form-input">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="form-label">Nominal (Rp)</label>
+                                <input type="number" id="pNominal" value="${item ? item.nominal : ''}" placeholder="750000" required class="form-input">
+                            </div>
+                            <div>
+                                <label class="form-label">Metode Pembayaran</label>
+                                <select id="pMetode" class="form-select">
+                                    <option ${item && item.metode === 'Transfer' ? 'selected' : ''}>Transfer</option>
+                                    <option ${item && item.metode === 'Tunai' ? 'selected' : ''}>Tunai</option>
+                                    <option ${item && item.metode === 'QRIS' ? 'selected' : ''}>QRIS</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="form-label">Tanggal Transaksi</label>
+                                <input type="date" id="pTanggal" value="${item ? item.tanggal : getTodayDateString()}" required class="form-input">
+                            </div>
+                            <div>
+                                <label class="form-label">Status Pembayaran</label>
+                                <select id="pStatus" class="form-select">
+                                    <option ${item && item.status === 'Lunas' ? 'selected' : ''}>Lunas</option>
+                                    <option ${item && item.status === 'Belum Lunas' ? 'selected' : ''}>Belum Lunas</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="flex justify-end gap-2 pt-3">
+                            <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-xl bg-darknavy-700 text-slate-300 font-semibold text-xs">Batal</button>
+                            <button type="submit" class="btn-submit">${item ? 'Perbarui Transaksi' : 'Simpan Pendapatan'}</button>
+                        </div>
+                    </form>
+                </div>
+            `);
+        }
+
+        function handleSavePendapatan(e, id) {
+            e.preventDefault();
+            if (id) {
+                const item = db.pendapatan.find(p => p.id === id);
+                if (item) {
+                    item.nama = document.getElementById('pNama').value;
+                    item.program = document.getElementById('pProgram').value;
+                    item.jenis = document.getElementById('pJenis').value;
+                    item.nominal = parseFloat(document.getElementById('pNominal').value);
+                    item.metode = document.getElementById('pMetode').value;
+                    item.tanggal = document.getElementById('pTanggal').value;
+                    item.status = document.getElementById('pStatus').value;
+                }
+                showToast('Transaksi pendapatan diperbarui!', 'success');
+            } else {
+                const newP = {
+                    id: 'P00' + (db.pendapatan.length + 1),
+                    tanggal: document.getElementById('pTanggal').value,
+                    nama: document.getElementById('pNama').value,
+                    program: document.getElementById('pProgram').value,
+                    jenis: document.getElementById('pJenis').value,
+                    periode: 'Maret 2026',
+                    nominal: parseFloat(document.getElementById('pNominal').value),
+                    metode: document.getElementById('pMetode').value,
+                    status: document.getElementById('pStatus').value,
+                    keterangan: 'Catatan manual admin'
+                };
+                db.pendapatan.push(newP);
+                showToast('Pendapatan berhasil dicatat!', 'success');
+            }
+            saveDatabase();
+            closeModal();
+            switchTab('pendapatan', currentSubTab);
+        }
+
+        function editPendapatan(id) { openPendapatanModal(id); }
+        function deletePendapatan(id) {
+            db.pendapatan = db.pendapatan.filter(p => p.id !== id);
+            saveDatabase();
+            showToast('Transaksi pendapatan dihapus', 'info');
+            switchTab('pendapatan', currentSubTab);
+        }
+
+        // --- 6. CRUD PENGELUARAN ---
+        function openPengeluaranModal(pengeluaranId = null) {
+            const item = pengeluaranId ? db.pengeluaran.find(e => e.id === pengeluaranId) : null;
+            openModal(`
+                <div class="p-6 space-y-4">
+                    <div class="flex items-center justify-between pb-3 border-b border-darknavy-600">
+                        <h3 class="font-bold text-white text-sm">${item ? 'Edit Catatan Pengeluaran' : 'Catat Pengeluaran Operasional'}</h3>
+                        <button onclick="closeModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+                    </div>
+                    <form onsubmit="handleSavePengeluaran(event, '${pengeluaranId || ''}')" class="space-y-3">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="form-label">Kategori Pengeluaran</label>
+                                <select id="eKategori" class="form-select">
+                                    <option ${item && item.kategori === 'Operasional' ? 'selected' : ''}>Operasional</option>
+                                    <option ${item && item.kategori === 'Honor Pengajar' ? 'selected' : ''}>Honor Pengajar</option>
+                                    <option ${item && item.kategori === 'Perlengkapan' ? 'selected' : ''}>Perlengkapan</option>
+                                    <option ${item && item.kategori === 'Sewa Tempat' ? 'selected' : ''}>Sewa Tempat</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Penerima / Terkait</label>
+                                <input type="text" id="ePenerima" value="${item ? item.penerima : ''}" placeholder="Vendor / Nama Tutor" required class="form-input">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-label">Deskripsi Pengeluaran</label>
+                            <input type="text" id="eDeskripsi" value="${item ? item.deskripsi : ''}" placeholder="Keterangan transaksi" required class="form-input">
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="form-label">Nominal (Rp)</label>
+                                <input type="number" id="eNominal" value="${item ? item.nominal : ''}" placeholder="250000" required class="form-input">
+                            </div>
+                            <div>
+                                <label class="form-label">Metode Pembayaran</label>
+                                <select id="eMetode" class="form-select">
+                                    <option ${item && item.metode === 'Transfer' ? 'selected' : ''}>Transfer</option>
+                                    <option ${item && item.metode === 'Tunai' ? 'selected' : ''}>Tunai</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-label">Tanggal Transaksi</label>
+                            <input type="date" id="eTanggal" value="${item ? item.tanggal : getTodayDateString()}" required class="form-input">
+                        </div>
+                        <div class="flex justify-end gap-2 pt-3">
+                            <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-xl bg-darknavy-700 text-slate-300 font-semibold text-xs">Batal</button>
+                            <button type="submit" class="btn-submit">${item ? 'Perbarui Pengeluaran' : 'Simpan Pengeluaran'}</button>
+                        </div>
+                    </form>
+                </div>
+            `);
+        }
+
+        function handleSavePengeluaran(e, id) {
+            e.preventDefault();
+            if (id) {
+                const item = db.pengeluaran.find(e => e.id === id);
+                if (item) {
+                    item.kategori = document.getElementById('eKategori').value;
+                    item.penerima = document.getElementById('ePenerima').value;
+                    item.deskripsi = document.getElementById('eDeskripsi').value;
+                    item.nominal = parseFloat(document.getElementById('eNominal').value);
+                    item.metode = document.getElementById('eMetode').value;
+                    item.tanggal = document.getElementById('eTanggal').value;
+                }
+                showToast('Catatan pengeluaran diperbarui!', 'success');
+            } else {
+                const newE = {
+                    id: 'E00' + (db.pengeluaran.length + 1),
+                    tanggal: document.getElementById('eTanggal').value,
+                    kategori: document.getElementById('eKategori').value,
+                    penerima: document.getElementById('ePenerima').value,
+                    deskripsi: document.getElementById('eDeskripsi').value,
+                    nominal: parseFloat(document.getElementById('eNominal').value),
+                    metode: document.getElementById('eMetode').value,
+                    status: 'Dibayar',
+                    keterangan: 'Pengeluaran operasional'
+                };
+                db.pengeluaran.push(newE);
+                showToast('Pengeluaran berhasil dicatat!', 'success');
+            }
+            saveDatabase();
+            closeModal();
+            switchTab('pengeluaran', currentSubTab);
+        }
+
+        function editPengeluaran(id) { openPengeluaranModal(id); }
+        function deletePengeluaran(id) {
+            db.pengeluaran = db.pengeluaran.filter(e => e.id !== id);
+            saveDatabase();
+            showToast('Catatan pengeluaran dihapus', 'info');
+            switchTab('pengeluaran', currentSubTab);
+        }
+    </script>
+</body>
+</html>
